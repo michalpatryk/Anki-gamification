@@ -1,22 +1,28 @@
 import json
 import pickle
+from GamesActive.QuizGame.AnkiQuizGameController import QuizGameController, QuizGameModel
+
 class GameMainframe():
     def __init__(self) -> None:
         self.ankiFile = None
         self.score = 0
         self.multipliers = list()
-        self.games = list() 
+        self.games = dict() 
 
-        self.load()
-        # list of all the game controller
-        # self.games = list() 
+        # self.load()
+        # list of all the game controllers
+        # self.games = list()
+        
+        
         # self.games.append(QuizGameController())
-        # self.games.append(QuizGameController())
+        if not any(type(game) is QuizGameController for game in self.games.values()):
+            quizGameController = QuizGameController()
+            self.games[quizGameController.controllerName] = quizGameController
 
 
     def update(self): # update all the games here
         # self.score += 1 
-        for game in self.games:
+        for game in self.games.values():
             game.update()
 
     def load(self):
@@ -48,36 +54,6 @@ class GameMainframe():
                 pickle.dump(saveData, f)
         except EnvironmentError:
             print(EnvironmentError)
-
-
-class GameControllerBase():
-    def __init__(self) -> None:
-        self.model = None
-
-    def update(self) -> None:
-        pass
-
-    def load(self):
-        pass
-    
-    def getModel(self):
-        return self.model.__dict__
-
-     
-
-class QuizGameController(GameControllerBase): # contains a set of functions that are executed by said game widget
-    def __init__(self) -> None:
-        self.model = QuizGameModel()
-
-    def update(self):
-        self.model.someValue += 1
-
-    
-
-class QuizGameModel():
-    def __init__(self) -> None:
-        self.componentName = 'QuizGame'
-        self.someValue = 0
 
 
 

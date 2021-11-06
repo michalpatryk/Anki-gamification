@@ -2,6 +2,10 @@ import typing
 from PyQt6 import QtCore, QtWidgets, QtGui
 from Core.DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
 
+from .AnkiQuizGameController import QuizGameController
+from .AnkiQuestionsImport import LoadQuestionsDialog
+
+
 class QuizGameQuestionWidget(QtWidgets.QWidget):
     def __init__(self, parent: typing.Optional['QtWidgets.QWidget'] = ...) -> None:
         super().__init__(parent=parent)
@@ -127,8 +131,10 @@ class QuizGameGoodAnswerWidget(QtWidgets.QWidget):
 
 
 class QuizGameWindow(DefaultGameMdiSubWindow):
-    def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ..., flags: QtCore.Qt.WindowType = QtCore.Qt.WindowType.SubWindow) -> None:
-        super().__init__(parent=parent, flags=flags)
+    def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ..., flags: QtCore.Qt.WindowType = QtCore.Qt.WindowType.SubWindow, controller = None) -> None:
+        super().__init__(parent=parent, flags=flags, controller=controller)
+        self.menuName = "Quiz"
+        self.gameName = "AnkiQuizGame"
 
         self.mainWidget = QuizGameQuestionWidget(self)
 
@@ -142,6 +148,16 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
 
         self.setWidget(self.mainWidget)
         self.mainWidget.buttonA.clicked.connect(self.onClick)
+
+
+        if len(self.controller.model.questions) == 0:
+            loadQuestionsDialog = LoadQuestionsDialog(self)
+            var = loadQuestionsDialog.exec()
+            print(var)
+            # self.window = QtWidgets.QWidget()
+            # self.window.show()
+
+        # self.controller.attachInterrupt(self)
 
     def onClick(self):
         self.mainWidget.hide()

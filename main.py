@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import QApplication
-from Core import AnkiGamificationApp, GameController
+from Core import AnkiGamificationApp
 
 
 if __name__ == '__main__':

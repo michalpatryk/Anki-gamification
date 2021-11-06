@@ -1,11 +1,18 @@
-import pprint
 from ankisync2.anki21 import db
 from os import listdir
 from os.path import dirname
-import datetime
+
+
 
 class AnkiNotesLoader():
     def __init__(self, file) -> None:
+        self.testing(file)
+        self.deck = None
+        self.cards = None
+        self.notes = None
+        self.fields = None
+
+    def testing(self, file):
         db.database.init(file)
 
         # we dont need NoteTypes, it only contains note name and some useless formatting
@@ -37,5 +44,5 @@ class AnkiNotesLoader():
         print("loaded")
     
 
-# dir = dirname(__file__) + '/../Anki_data' + '/collection.anki2'
-# AnkiNotesLoader(dir)
+dir = dirname(__file__) + '/../Anki_data' + '/collection.anki2'
+AnkiNotesLoader(dir)
