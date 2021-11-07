@@ -3,7 +3,7 @@ from PyQt6 import QtCore, QtWidgets, QtGui
 from Core.DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
 
 from .AnkiQuizGameController import QuizGameController
-from .AnkiQuestionsImport import LoadQuestionsDialog
+from .AnkiQuestionsImportWizard import ImportWizard
 
 
 class QuizGameQuestionWidget(QtWidgets.QWidget):
@@ -151,11 +151,9 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
 
 
         if len(self.controller.model.questions) == 0:
-            loadQuestionsDialog = LoadQuestionsDialog(self)
-            var = loadQuestionsDialog.exec()
-            print(var)
-            # self.window = QtWidgets.QWidget()
-            # self.window.show()
+            self.loadQuestionsWizard = ImportWizard(self)
+            self.loadQuestionsWizard.show()
+
 
         # self.controller.attachInterrupt(self)
 
