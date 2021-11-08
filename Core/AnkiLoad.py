@@ -77,9 +77,15 @@ class AnkiNotesLoader():
         # self.fields = list(db.Fields.select().where(db.Fields.ntid.in_(note_type_ids)))
 
         # print([field.name for field in self.fields])
+    
+    def selectDecks(self, deckNames) -> None:
+        self.selectedDecks = [deck for deck in self.decks if deck.name in deckNames]
+
+    def clearSelectedDecks(self) -> None:
+        self.selectedDecks = list()
 
     def getFields(self) -> list:
-        self.cards = list(db.Cards.select().where(db.Cards.did == self.selectedDecks.id))
+        self.cards = list(db.Cards.select().where(db.Cards.did.in_(self.selectedDecks)))
 
         note_ids = set([card.nid for card in self.cards])
         self.notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))

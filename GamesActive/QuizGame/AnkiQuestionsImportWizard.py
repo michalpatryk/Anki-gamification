@@ -107,24 +107,36 @@ class LoadDeckPage(ImportWizardPage):
         self.loadDeckLayout.addWidget(self.label, 0, 0, 1, 1)
 
         self.label.setText("Select deck:")
-        self.decksView.itemSelectionChanged.connect(self.deckSelected)
+        # self.decksView.itemSelectionChanged.connect(self.deckSelected)
+        self.decksView.itemClicked.connect(self.deckClicked)
+        self.decksView.itemDoubleClicked.connect(self.deckClicked)
+        self.decksView.checkLocation = 2
 
     def initializePage(self) -> None:
         def recursiveAdd(parent: QtWidgets.QTreeWidgetItem, value):
             if type(value) == int:
+                parent.setCheckState(self.decksView.checkLocation, QtCore.Qt.CheckState.Unchecked)
                 parent.setData(1, QtCore.Qt.ItemDataRole.DisplayRole, value)
             else:
                 for subdeck in value.items():
                     child = QtWidgets.QTreeWidgetItem([subdeck[0]])
                     parent.addChild(child)
+                    parent.setExpanded(True)
+                    # parent.setFlags(parent.flags() & ~QtCore.Qt.ItemFlag.ItemIsCl)
                     recursiveAdd(child, subdeck[1])
 
         self.wizard().ankiNotesLoader = AnkiNotesLoader(self.field("collectionFile"))
         self.wizard().ankiNotesLoader.loadDecks()
 
-        self.decksView.setHeaderItem(QtWidgets.QTreeWidgetItem(["Deck names", "Cards count"]))
+        self.decksView.setHeaderItem(QtWidgets.QTreeWidgetItem(["Deck names", "Cards count", "Selected"]))
         self.decksView.header().setStretchLastSection(False)
         self.decksView.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+        self.decksView.header().setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        self.decksView.header().setSectionResizeMode(2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+        # self.decksView.setExpanded
+
+        # !!! Stop this bullshit - just make checkboxes
+        # self.decksView.setSelectionMode(QtWidgets.QAbstractItemView.SelectionMode.MultiSelection)
 
         treeDeck = self.wizard().ankiNotesLoader.getDeckTree()
         
@@ -135,19 +147,65 @@ class LoadDeckPage(ImportWizardPage):
         return super().initializePage()
 
     def deckSelected(self) -> None:
-        deck = self.decksView.selectedItems()[0]
-        if deck.data(1, QtCore.Qt.ItemDataRole.DisplayRole) is not None:
-            deckFullName = ''
-            separator = "\x1f"
+        # deck = self.decksView.selectedItems()[0]
+        # if deck.data(1, QtCore.Qt.ItemDataRole.DisplayRole) is not None:
+        #     deckFullName = ''
+        #     separator = "\x1f"
 
-            while deck is not None:
-                deckFullName = deck.text(0) + separator + deckFullName 
-                deck = deck.parent()
-            deckFullName = deckFullName[:-len(separator)]
+        #     while deck is not None:
+        #         deckFullName = deck.text(0) + separator + deckFullName 
+        #         deck = deck.parent()
+        #     deckFullName = deckFullName[:-len(separator)]
 
-            self.wizard().ankiNotesLoader.loadDeck(deckFullName)
-            self.completeChanged.emit()
+        #     self.wizard().ankiNotesLoader.loadDeck(deckFullName)
+        #     self.completeChanged.emit()
+        selectedDecks = list()
+        for deck in self.decksView.selectedItems():
+            if deck.data(1, QtCore.Qt.ItemDataRole.DisplayRole) is not None:
+                deckFullName = ''
+                separator = "\x1f"
+                while deck is not None:
+                    deckFullName = deck.text(0) + separator + deckFullName 
+                    deck = deck.parent()
+                deckFullName = deckFullName[:-len(separator)]
+                selectedDecks.append(deckFullName)
 
+        if len(selectedDecks) > 0: 
+            # print(selectedDecks)
+            self.wizard().ankiNotesLoader.selectDecks(selectedDecks)
+            # print(self.wizard().ankiNotesLoader.selectedDecks)
+        else: 
+            self.wizard().ankiNotesLoader.clearSelectedDecks()
+        self.completeChanged.emit()
+
+    def deckClicked(self, item: QtWidgets.QTreeWidgetItem):
+        checkState = item.checkState(self.decksView.checkLocation)
+        if item.childCount() == 0:
+            if checkState == QtCore.Qt.CheckState.Unchecked:
+                item.setCheckState(self.decksView.checkLocation, QtCore.Qt.CheckState.Checked)
+            else:
+                item.setCheckState(self.decksView.checkLocation, QtCore.Qt.CheckState.Unchecked)
+
+        self.decksView.findItems("", QtCore.Qt.MatchFlag.MatchContains | QtCore.Qt.MatchFlag.MatchRecursive)
+        
+        selectedDecks = list()
+        for deck in self.decksView.findItems("", QtCore.Qt.MatchFlag.MatchContains | QtCore.Qt.MatchFlag.MatchRecursive):
+            if deck.checkState(self.decksView.checkLocation) == QtCore.Qt.CheckState.Checked:
+                deckFullName = ''
+                separator = "\x1f"
+                while deck is not None:
+                    deckFullName = deck.text(0) + separator + deckFullName 
+                    deck = deck.parent()
+                deckFullName = deckFullName[:-len(separator)]
+                selectedDecks.append(deckFullName)
+                
+        if len(selectedDecks) > 0: 
+            # print(selectedDecks)
+            self.wizard().ankiNotesLoader.selectDecks(selectedDecks)
+            # print(self.wizard().ankiNotesLoader.selectedDecks)
+        else: 
+            self.wizard().ankiNotesLoader.clearSelectedDecks()
+        self.completeChanged.emit()
 
     def isComplete(self) -> bool:
         if self.wizard().ankiNotesLoader.selectedDecks:
