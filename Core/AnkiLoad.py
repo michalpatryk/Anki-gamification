@@ -2,7 +2,9 @@ from ankisync2.anki21 import db
 from os import listdir
 from os.path import dirname
 
-
+from collections import defaultdict
+import pprint as pp
+from time import perf_counter
 
 class AnkiNotesLoader():
     def __init__(self, file) -> None:
@@ -10,10 +12,10 @@ class AnkiNotesLoader():
         self.file = file
         db.database.init(file)
         self.decks = list()
-        self.selectedDeck = None
+        self.selectedDecks = None
         self.cards = list()
         self.notes = list()
-        self.fields = list()
+        self.fields = dict()
 
     def loadDecks(self) -> None:
         self.decks = list(db.Decks.select())
@@ -21,24 +23,52 @@ class AnkiNotesLoader():
     def getDeckNames(self) -> list:
         return list([deck.name for deck in self.decks])
 
+
+
+    def setInDict(self, dic: dict, keys, value):
+        for key in keys[:-1]:
+            # if type(dic[key]) == dict:
+            if dic[key] == 0:
+                dic[key] = dict()
+            dic = dic[key]
+            # dic = dic.setdefault(key, {})
+            # else:
+            #     dic[key] = dict({key: 0})
+        dic[keys[-1]] = value
+            
+            
     # Rethink this
     def getDeckTree(self) -> dict:
+        separator = "\x1f"
+        decks = list([deck.name for deck in self.decks])
+        if('Default' in decks):
+            decks.remove('Default')
 
-        def recursiveList(self):
-            pass
-        stem = dict()
-        for deck in self.decks:
-            print(deck.name.find('\x1f') )
-        stem = dict([(deck.name, '1') for deck in self.decks if deck.name.find('\x1f') == -1])
-        testDict = dict()
-        testDict['1'] = dict()
-        testDict['1']['1'] = 1
-        testDict['2'] = 2
-        return testDict
+        split_deck =  list([deck.split(separator) for deck in decks])
+        split_deck.sort(key=lambda e: len(e), reverse=False)
+        nested_dict = lambda: defaultdict(nested_dict)
+
+        deckTree = dict()
+        for deck in split_deck:
+            test = deck[0]
+            for mini in deck[1:]:
+                test += separator + mini
+            
+            cards = db.Cards.select().where(db.Cards.did == (db.Decks.select().where(db.Decks.name % test)[0]))
+                
+            
+            # note_ids = set([card.nid for card in cards])
+            # # notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
+            
+            # # self.setInDict(deckTree, deck, len(notes))
+            # notesCount = db.Notes.select().where(db.Notes.id.in_(note_ids)).count()
+            
+            self.setInDict(deckTree, deck, cards.count())
+        return deckTree
 
     def loadDeck(self, deckName) -> None:
-        self.deck = next(deck for deck in self.decks if deck.name == deckName)
-        # self.cards = list(db.Cards.select().where(db.Cards.did == self.deck.id))
+        self.selectedDecks = next(deck for deck in self.decks if deck.name == deckName)
+        # self.cards = list(db.Cards.select().where(db.Cards.did == self.selectedDecks.id))
 
         # note_ids = set([card.nid for card in self.cards])
         # self.notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
@@ -49,15 +79,19 @@ class AnkiNotesLoader():
         # print([field.name for field in self.fields])
 
     def getFields(self) -> list:
-        self.cards = list(db.Cards.select().where(db.Cards.did == self.deck.id))
+        self.cards = list(db.Cards.select().where(db.Cards.did == self.selectedDecks.id))
 
         note_ids = set([card.nid for card in self.cards])
         self.notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
 
         note_type_ids = set([note.mid for note in self.notes])
-        self.fields = list(db.Fields.select().where(db.Fields.ntid.in_(note_type_ids)))
 
-        print([field.name for field in self.fields])
+ 
+        for note_type_id in note_type_ids:
+            query = list(db.Fields.select(db.Fields.name).where(db.Fields.ntid == note_type_id))
+            self.fields[db.Notetypes.select().where(db.Notetypes.id == note_type_id)[0].name] = [field.name for field in query]
+        return self.fields
+        # print([field.name for field in self.fields])
 
     def testing(self, file):
         db.database.init(file)

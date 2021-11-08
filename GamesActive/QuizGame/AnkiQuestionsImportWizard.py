@@ -1,3 +1,4 @@
+from operator import sub
 from os.path import exists
 from pathlib import Path
 import re
@@ -98,7 +99,7 @@ class LoadDeckPage(ImportWizardPage):
         super().__init__(parent=parent)
         self.loadDeckLayout = QtWidgets.QGridLayout(self)
         self.loadDeckLayout.setObjectName("loadDeckLayout")
-        self.decksView = QtWidgets.QListWidget(self)
+        self.decksView = QtWidgets.QTreeWidget(self)
         self.decksView.setObjectName("decksView")
         self.loadDeckLayout.addWidget(self.decksView, 1, 0, 1, 1)
         self.label = QtWidgets.QLabel(self)
@@ -109,33 +110,90 @@ class LoadDeckPage(ImportWizardPage):
         self.decksView.itemSelectionChanged.connect(self.deckSelected)
 
     def initializePage(self) -> None:
+        def recursiveAdd(parent: QtWidgets.QTreeWidgetItem, value):
+            if type(value) == int:
+                parent.setData(1, QtCore.Qt.ItemDataRole.DisplayRole, value)
+            else:
+                for subdeck in value.items():
+                    child = QtWidgets.QTreeWidgetItem([subdeck[0]])
+                    parent.addChild(child)
+                    recursiveAdd(child, subdeck[1])
+
         self.wizard().ankiNotesLoader = AnkiNotesLoader(self.field("collectionFile"))
         self.wizard().ankiNotesLoader.loadDecks()
-        decks = self.wizard().ankiNotesLoader.getDeckNames()
 
-        # TODO: try to change this to tree, for now lets just make a working prototype
-        # treeDeck = self.wizard().ankiNotesLoader.getDeckTree()
+        self.decksView.setHeaderItem(QtWidgets.QTreeWidgetItem(["Deck names", "Cards count"]))
+        self.decksView.header().setStretchLastSection(False)
+        self.decksView.header().setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeMode.Stretch)
+
+        treeDeck = self.wizard().ankiNotesLoader.getDeckTree()
         
+        for deck in treeDeck.items():
+            item = QtWidgets.QTreeWidgetItem(self.decksView, [deck[0]])
+            recursiveAdd(item, deck[1])
 
-        # for deck in treeDeck:
-        #     child = QtWidgets.QTreeWidgetItem(self.decksView)
-        #     child.setText(deck.name)
-        #     if type(deck) is dict:
-
-        self.decksView.addItems(decks)
         return super().initializePage()
 
     def deckSelected(self) -> None:
-        self.wizard().ankiNotesLoader.loadDeck(self.decksView.selectedItems()[0].text())
-        self.completeChanged.emit()
+        deck = self.decksView.selectedItems()[0]
+        if deck.data(1, QtCore.Qt.ItemDataRole.DisplayRole) is not None:
+            deckFullName = ''
+            separator = "\x1f"
+
+            while deck is not None:
+                deckFullName = deck.text(0) + separator + deckFullName 
+                deck = deck.parent()
+            deckFullName = deckFullName[:-len(separator)]
+
+            self.wizard().ankiNotesLoader.loadDeck(deckFullName)
+            self.completeChanged.emit()
+
 
     def isComplete(self) -> bool:
-        if self.decksView.selectedItems():
+        if self.wizard().ankiNotesLoader.selectedDecks:
             return True
         else: 
             return False
+        # if self.decksView.selectedItems():
+        #     return True
+        # else: 
+        #     return False
 
 
-class SelectFieldsPage(QtWidgets.QWizardPage):
+class SelectFieldsPage(ImportWizardPage):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ...) -> None:
         super().__init__(parent=parent)
+
+        self.gridLayout = QtWidgets.QGridLayout(self)
+        self.gridLayout.setObjectName("gridLayout")
+        self.questionLabel = QtWidgets.QLabel(self)
+        self.questionLabel.setObjectName("questionLabel")
+        self.gridLayout.addWidget(self.questionLabel, 1, 0, 1, 1)
+        self.answerLabel = QtWidgets.QLabel(self)
+        self.answerLabel.setObjectName("answerLabel")
+        self.gridLayout.addWidget(self.answerLabel, 3, 0, 1, 1)
+        self.informationLabel = QtWidgets.QLabel(self)
+        self.informationLabel.setObjectName("informationLabel")
+        self.gridLayout.addWidget(self.informationLabel, 0, 0, 1, 1)
+        self.questionTreeWidget = QtWidgets.QTreeWidget(self)
+        self.questionTreeWidget.setObjectName("questionTreeWidget")
+        self.gridLayout.addWidget(self.questionTreeWidget, 2, 0, 1, 1)
+        self.answerTreeWidget = QtWidgets.QTreeWidget(self)
+        self.answerTreeWidget.setObjectName("answerTreeWidget")
+        self.gridLayout.addWidget(self.answerTreeWidget, 4, 0, 1, 1)
+
+        self.questionLabel.setText("Questions field:")
+        self.answerLabel.setText("Answers field:")
+        self.informationLabel.setText("<html><head/><body><p>Please select fields that will be used as questions and answers for the quiz.</p></body></html>")
+
+    def initializePage(self) -> None:
+        self.questionTreeWidget.setHeaderHidden(True)
+        self.answerTreeWidget.setHeaderHidden(True)
+        decks = self.wizard().ankiNotesLoader.getFields()
+        for deck in decks.items():
+            questionItem = QtWidgets.QTreeWidgetItem(self.questionTreeWidget, [deck[0]])
+            answerItem = QtWidgets.QTreeWidgetItem(self.answerTreeWidget, [deck[0]])
+            for field in deck[1]:
+                questionItem.addChild(QtWidgets.QTreeWidgetItem([field]))
+                answerItem.addChild(QtWidgets.QTreeWidgetItem([field]))
+        return super().initializePage()
