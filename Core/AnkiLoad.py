@@ -13,9 +13,15 @@ class AnkiNotesLoader():
         db.database.init(file)
         self.decks = list()
         self.selectedDecks = None
-        self.cards = list()
-        self.notes = list()
-        self.fields = dict()
+        self.selectedCards = list()
+        self.selectedNotes = list()
+        self.possibleFields = dict()
+
+
+        self.selectedQuestionFields = list()
+        self.selectedAnswerFields = list()
+        self.questions = list()
+        self.answers = list()
 
     def loadDecks(self) -> None:
         self.decks = list(db.Decks.select())
@@ -68,16 +74,7 @@ class AnkiNotesLoader():
 
     def loadDeck(self, deckName) -> None:
         self.selectedDecks = next(deck for deck in self.decks if deck.name == deckName)
-        # self.cards = list(db.Cards.select().where(db.Cards.did == self.selectedDecks.id))
 
-        # note_ids = set([card.nid for card in self.cards])
-        # self.notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
-
-        # note_type_ids = set([note.mid for note in self.notes])
-        # self.fields = list(db.Fields.select().where(db.Fields.ntid.in_(note_type_ids)))
-
-        # print([field.name for field in self.fields])
-    
     def selectDecks(self, deckNames) -> None:
         self.selectedDecks = [deck for deck in self.decks if deck.name in deckNames]
 
@@ -85,19 +82,58 @@ class AnkiNotesLoader():
         self.selectedDecks = list()
 
     def getFields(self) -> list:
-        self.cards = list(db.Cards.select().where(db.Cards.did.in_(self.selectedDecks)))
+        self.selectedCards = list(db.Cards.select().where(db.Cards.did.in_(self.selectedDecks)))
 
-        note_ids = set([card.nid for card in self.cards])
-        self.notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
+        note_ids = set([card.nid for card in self.selectedCards])
+        self.selectedNotes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
 
-        note_type_ids = set([note.mid for note in self.notes])
+        note_type_ids = set([note.mid for note in self.selectedNotes])
 
- 
+        self.possibleFields = dict()
         for note_type_id in note_type_ids:
             query = list(db.Fields.select(db.Fields.name).where(db.Fields.ntid == note_type_id))
-            self.fields[db.Notetypes.select().where(db.Notetypes.id == note_type_id)[0].name] = [field.name for field in query]
-        return self.fields
-        # print([field.name for field in self.fields])
+            self.possibleFields[db.Notetypes.select().where(db.Notetypes.id == note_type_id)[0].name] = [field.name for field in query]
+        return self.possibleFields
+
+
+    def selectQuestionFields(self, fieldData):
+        self.selectedQuestionFields = dict()
+        for data in fieldData:
+            noteType = db.Notetypes.get(db.Notetypes.name % data[0])
+            field = db.Fields.get((db.Fields.name % data[1]) & (db.Fields.ntid == noteType.id))
+            if noteType.id in self.selectedQuestionFields:
+                self.selectedQuestionFields[noteType.id].append(field)    
+            else:
+                self.selectedQuestionFields[noteType.id] = [field]
+
+    def selectAnswerFields(self, fieldData):
+        self.selectedAnswerFields = dict()
+        for data in fieldData:
+            noteType = db.Notetypes.get(db.Notetypes.name % data[0])
+            field = db.Fields.get((db.Fields.name % data[1]) & (db.Fields.ntid == noteType.id))
+            if noteType.id in self.selectedAnswerFields:
+                self.selectedAnswerFields[noteType.id].append(field)    
+            else:
+                self.selectedAnswerFields[noteType.id] = [field]
+
+    def getAnswersAndQuestions(self) -> tuple[list, list]:
+        for noteType in self.selectedQuestionFields.items():
+            notes = db.Notes.select(db.Notes.flds).where(db.Notes.mid == noteType[0])
+            for note in notes:
+                answer = list()
+                for field in noteType[1]:
+                    answer.append(note.flds[field.ord])
+                self.questions.append('\n'.join([str(elem) for elem in answer]))
+
+        for noteType in self.selectedAnswerFields.items():
+            notes = db.Notes.select(db.Notes.flds).where(db.Notes.mid == noteType[0])
+            for note in notes:
+                answer = list()
+                for field in noteType[1]:
+                    answer.append(note.flds[field.ord])
+                self.answers.append('\n'.join([str(elem) for elem in answer]))
+
+        return self.questions, self.answers
 
     def testing(self, file):
         db.database.init(file)

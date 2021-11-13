@@ -151,8 +151,10 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
 
 
         if len(self.controller.model.questions) == 0:
-            self.loadQuestionsWizard = ImportWizard(self)
-            self.loadQuestionsWizard.show()
+            loadQuestionsWizard = ImportWizard(self)
+            # loadQuestionsWizard.done(1).connect(self.loadWizardResults)
+            # print(loadQuestionsWizard.getResults)
+            # self.loadQuestionsWizard.show()
 
 
         # self.controller.attachInterrupt(self)
@@ -163,6 +165,9 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
         self.wrongAnswerWidget.show()
         print("widget2")
 
-
+    def loadWizardResults(self, questionsAndAnswers):
+        self.controller.model.questions = questionsAndAnswers[0]
+        self.controller.model.answers = questionsAndAnswers[1]
+        print(5)
         
 
