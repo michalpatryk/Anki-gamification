@@ -2,28 +2,31 @@ import json
 import pickle
 from GamesActive.QuizGame.AnkiQuizGameController import QuizGameController, QuizGameModel
 
+
 class GameMainframe():
     def __init__(self) -> None:
         self.ankiFile = None
         self.score = 0
         self.multipliers = list()
-        self.games = dict() 
+        self.games = dict()
 
         # self.load()
         # list of all the game controllers
         # self.games = list()
-        
-        
+
         # self.games.append(QuizGameController())
         if not any(type(game) is QuizGameController for game in self.games.values()):
-            quizGameController = QuizGameController()
+            quizGameController = QuizGameController(self.activeAction)
             self.games[quizGameController.controllerName] = quizGameController
 
-
-    def update(self): # update all the games here
-        # self.score += 1 
+    def update(self):  # update all the games here
+        # self.score += 1
         for game in self.games.values():
             game.update()
+
+    def activeAction(self):
+        self.score += 1
+        print(self.score)
 
     def load(self):
         # leaving this if I ever want to go into full transparency - too much work in this proof of concept
@@ -35,7 +38,7 @@ class GameMainframe():
         #     print("no saves")
         try:
             with open('save.json', 'rb') as f:
-                 self.games, self.score = pickle.load(f)
+                self.games, self.score = pickle.load(f)
         except EnvironmentError:
             print("no saves")
 
@@ -54,6 +57,3 @@ class GameMainframe():
                 pickle.dump(saveData, f)
         except EnvironmentError:
             print(EnvironmentError)
-
-
-

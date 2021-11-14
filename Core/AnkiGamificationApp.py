@@ -5,6 +5,7 @@ from PyQt6 import QtWidgets
 from .AnkiGamificationMainWindow import AnkiGamificationMainWindow
 from .GameMainframe import GameMainframe
 
+
 class AnkiGamificationApp(QtWidgets.QApplication):
     def __init__(self, argv: typing.List[str]) -> None:
         super().__init__(argv)
@@ -13,7 +14,7 @@ class AnkiGamificationApp(QtWidgets.QApplication):
         self.loadConfig()
 
         self.gameMainframe = GameMainframe()
-        # self.gameMainframe.load()
+        self.gameMainframe.load()
         self.GUI = AnkiGamificationMainWindow(self.gameMainframe)
         self.GUI.show()
 

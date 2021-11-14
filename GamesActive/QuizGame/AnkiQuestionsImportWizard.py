@@ -5,9 +5,9 @@ from Core.AnkiLoad import AnkiNotesLoader
 
 
 class ImportWizard(QtWidgets.QWizard):
-    def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ..., flags: QtCore.Qt.WindowType = QtCore.Qt.WindowType.Dialog) -> None:
+    def __init__(self, parent, finishHandle: QtWidgets.QWidget, flags: QtCore.Qt.WindowType = QtCore.Qt.WindowType.Dialog) -> None:
         super().__init__(parent=parent, flags=flags)
-
+        self.finishHandle = finishHandle
         self.setFixedSize(640, 480)
         self.addPage(LoadCollectionPage(self))
         self.addPage(LoadDeckPage(self))
@@ -16,12 +16,17 @@ class ImportWizard(QtWidgets.QWizard):
         self.resize(640, 480)
         self.setWindowTitle("Anki collection importer")
         self.ankiNotesLoader = None  # type: AnkiNotesLoader
-        self.button(QtWidgets.QWizard.WizardButton.FinishButton).clicked.connect(self.onFinish)
+        self.button(QtWidgets.QWizard.WizardButton.FinishButton).clicked.connect(
+            self.onFinish)
         self.show()
 
     def onFinish(self):
-        self.parent().loadWizardResults(self.ankiNotesLoader.getAnswersAndQuestions())
-    
+        self.finishHandle(self.ankiNotesLoader.getAnswersAndQuestions())
+        # finisher = self.parent()
+        # while finisher.objectName != "QuizGameWindow":
+        #     finisher = finisher.parent()
+        # finisher.loadWizardResults(self.ankiNotesLoader.getAnswersAndQuestions())
+
 
 class ImportWizardPage(QtWidgets.QWizardPage):
     def wizard(self) -> ImportWizard:
@@ -158,7 +163,6 @@ class LoadDeckPage(ImportWizardPage):
             recursiveAdd(item, deck[1])
 
         return super().initializePage()
-
 
     def deckClicked(self, item: QtWidgets.QTreeWidgetItem):
         checkState = item.checkState(self.decksView.checkLocation)
@@ -300,7 +304,6 @@ class SelectFieldsPage(ImportWizardPage):
         elif item.treeWidget().fieldType == 'Answer':
             self.wizard().ankiNotesLoader.selectAnswerFields(selectedFields)
         self.completeChanged.emit()
-
 
     def isComplete(self) -> bool:
         if self.wizard().ankiNotesLoader.selectedQuestionFields and self.wizard().ankiNotesLoader.selectedAnswerFields:

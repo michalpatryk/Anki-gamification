@@ -1,8 +1,11 @@
+import random
 from Core.GameControllerBase import GameControllerBase
 # from .AnkiQuizWindow import QuizGameWindow
 
-class QuizGameController(GameControllerBase): # contains a set of functions that are executed by said game widget
-    def __init__(self) -> None:
+
+# contains a set of functions that are executed by said game widget
+class QuizGameController(GameControllerBase):
+    def __init__(self, activeActionHandle) -> None:
         super().__init__()
         self.model = QuizGameModel()
         self.gameName = "AnkiQuizGame"
@@ -24,8 +27,28 @@ class QuizGameController(GameControllerBase): # contains a set of functions that
         self.model.questions = questions
         self.model.answers = answers
 
+    def getRandomQuestion(self):
+        return random.choice(self.model.questions)
+
+    def getRandomAnswer(self):
+        return random.choice(self.model.answers)
+
+    def getQuizSet(self):
+        quizSet = dict()
+        answers = list()
+
+        pos = random.randrange(0, len(self.model.answers))
+        quizSet['question'] = self.model.questions[pos]
+        quizSet['correctAnswer'] = self.model.answers[pos]
+        for i in range(3):
+            answers.append(self.getRandomAnswer())
+        quizSet['wrongAnswers'] = answers
+        return quizSet
+
+
 class QuizGameModel():
     def __init__(self) -> None:
+        # might want to change that in the future - it is too dependent on the ordering
         self.questions = list()
         self.answers = list()
 
@@ -35,6 +58,3 @@ class QuizGameModel():
         # self.adverb = list()
 
         self.someValue = 0
-
-
-
