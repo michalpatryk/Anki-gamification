@@ -8,7 +8,7 @@ from .AnkiQuestionsImportWizard import ImportWizard
 
 
 class NoQuestionsLoadedWidget(QtWidgets.QWidget):
-    def __init__(self, parent: QtWidgets.QWidget, startWizardHandle) -> None:
+    def __init__(self, parent: QtWidgets.QWidget, startWizardHandle: typing.Callable[[], None]) -> None:
         super().__init__(parent=parent)
         self.startWizardHandle = startWizardHandle
         self.setObjectName("AnkiQuizGameViewNoQuestionsLoaded")
@@ -35,7 +35,7 @@ class NoQuestionsLoadedWidget(QtWidgets.QWidget):
 
 
 class QuizGameQuestionWidget(QtWidgets.QWidget):
-    def __init__(self, parent: QtWidgets.QWidget, correctAnswerHandle, wrongAnswerHandle) -> None:
+    def __init__(self, parent: QtWidgets.QWidget, correctAnswerHandle: typing.Callable, wrongAnswerHandle: typing.Callable) -> None:
         super().__init__(parent=parent)
         self.correctAnswerHandle = correctAnswerHandle
         self.wrongAnswerHandle = wrongAnswerHandle
@@ -97,22 +97,26 @@ class QuizGameQuestionWidget(QtWidgets.QWidget):
                     2: (self.labelC, self.buttonC),
                     3: (self.labelD, self.buttonD)}
 
+        
         self.labelQuestion.setText("Question: \n" + quizSet['question'])
         selector = list(range(4))
         selectedPosition = random.choice(selector)
         selector.remove(selectedPosition)
         label, button = labelMap[selectedPosition]
         label.setText(quizSet['correctAnswer'])
-        button.clicked.connect(self.correctAnswerHandle)
+        button.disconnect()
+        button.clicked.connect(lambda: self.correctAnswerHandle(quizSet['question'], quizSet['correctAnswer']))
 
         for i in selector:
             label, button = labelMap[i]
-            label.setText(quizSet['wrongAnswers'].pop())
-            button.clicked.connect(self.wrongAnswerHandle)
+            answer = quizSet['wrongAnswers'].pop()
+            label.setText(answer)
+            button.disconnect()
+            button.clicked.connect(lambda: self.wrongAnswerHandle(quizSet['question'], answer, quizSet['correctAnswer']))
 
 
 class QuizGameWrongAnswerWidget(QtWidgets.QWidget):
-    def __init__(self, parent: QtWidgets.QWidget, nextQuestionHandle) -> None:
+    def __init__(self, parent: QtWidgets.QWidget, nextQuestionHandle: typing.Callable) -> None:
         super().__init__(parent=parent)
         self.setObjectName("AnkiQuizGameViewWrongAnswer")
         self.widgetLayout = QtWidgets.QGridLayout(self)
@@ -123,11 +127,14 @@ class QuizGameWrongAnswerWidget(QtWidgets.QWidget):
 
         self.labelCorrectAnswer = QtWidgets.QLabel(self)
         self.labelCorrectAnswer.setObjectName("labelCorrectAnswer")
-        self.labelCorrectAnswer.setText("CorrectAnswer")
+        # self.labelCorrectAnswer.setText("CorrectAnswer")
 
-        self.labelUserAnwer = QtWidgets.QLabel(self)
-        self.labelUserAnwer.setObjectName("labelUserAnwer")
-        self.labelUserAnwer.setText("UserAnswer")
+        self.labelQuestion = QtWidgets.QLabel(self)
+        self.labelQuestion.setObjectName("labelQuestion")
+
+        self.labelUserAnswer = QtWidgets.QLabel(self)
+        self.labelUserAnswer.setObjectName("labelUserAnswer")
+        # self.labelUserAnswer.setText("Your answer was: ")
 
         self.labelAnswerTypeInfo = QtWidgets.QLabel(self)
         self.labelAnswerTypeInfo.setObjectName('labelAnswerTypeInfo')
@@ -139,8 +146,9 @@ class QuizGameWrongAnswerWidget(QtWidgets.QWidget):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("Continue")
 
+        self.mistakeLayout.addWidget(self.labelUserAnswer, 2, 0, 1, 1)
         self.mistakeLayout.addWidget(self.labelCorrectAnswer, 1, 0, 1, 1)
-        self.mistakeLayout.addWidget(self.labelUserAnwer, 0, 0, 1, 1)
+        self.mistakeLayout.addWidget(self.labelQuestion, 0, 0, 1, 1)
 
         self.widgetLayout.addWidget(self.labelAnswerTypeInfo, 0, 0, 1, 1)
         self.widgetLayout.addLayout(self.mistakeLayout, 1, 0, 1, 1)
@@ -148,6 +156,15 @@ class QuizGameWrongAnswerWidget(QtWidgets.QWidget):
         self.setLayout(self.widgetLayout)
 
         self.pushButton.clicked.connect(nextQuestionHandle)
+
+    def setQuestion(self, answer: str) -> None:
+        self.labelQuestion.setText("Question was: \n" + answer)
+
+    def setUserAnswer(self, answer: str) -> None:
+        self.labelUserAnswer.setText("Your answer was: \n" + answer)
+
+    def setCorrectAnswer(self, answer: str) -> None:
+        self.labelCorrectAnswer.setText("Correct answer is: \n" + answer)
 
 
 class QuizGameGoodAnswerWidget(QtWidgets.QWidget):
@@ -160,13 +177,13 @@ class QuizGameGoodAnswerWidget(QtWidgets.QWidget):
         self.mistakeLayout = QtWidgets.QGridLayout()
         self.mistakeLayout.setObjectName("mistakeLayout")
 
-        self.labelCorrectAnswer = QtWidgets.QLabel(self)
-        self.labelCorrectAnswer.setObjectName("labelCorrectAnswer")
-        self.labelCorrectAnswer.setText("CorrectAnswer")
+        self.labelUserAnswer = QtWidgets.QLabel(self)
+        self.labelUserAnswer.setObjectName("labelUserAnswer")
+        # self.labelCorrectAnswer.setText("Your answer was: ")
 
-        self.labelUserAnwer = QtWidgets.QLabel(self)
-        self.labelUserAnwer.setObjectName("labelUserAnwer")
-        self.labelUserAnwer.setText("UserAnswer")
+        self.labelQuestion = QtWidgets.QLabel(self)
+        self.labelQuestion.setObjectName("labelQuestion")
+        # self.labelQuestion.setText("Your answer was: ")
 
         self.labelAnswerTypeInfo = QtWidgets.QLabel(self)
         self.labelAnswerTypeInfo.setObjectName('labelAnswerTypeInfo')
@@ -178,8 +195,8 @@ class QuizGameGoodAnswerWidget(QtWidgets.QWidget):
         self.pushButton.setObjectName("pushButton")
         self.pushButton.setText("Continue")
 
-        self.mistakeLayout.addWidget(self.labelCorrectAnswer, 1, 0, 1, 1)
-        self.mistakeLayout.addWidget(self.labelUserAnwer, 0, 0, 1, 1)
+        self.mistakeLayout.addWidget(self.labelUserAnswer, 1, 0, 1, 1)
+        self.mistakeLayout.addWidget(self.labelQuestion, 0, 0, 1, 1)
 
         self.widgetLayout.addWidget(self.labelAnswerTypeInfo, 0, 0, 1, 1)
         self.widgetLayout.addLayout(self.mistakeLayout, 1, 0, 1, 1)
@@ -188,6 +205,11 @@ class QuizGameGoodAnswerWidget(QtWidgets.QWidget):
 
         self.pushButton.clicked.connect(nextQuestionHandle)
 
+    def setQuestion(self, answer: str) -> None:
+        self.labelQuestion.setText("Question was: \n" + answer)
+
+    def setUserAnswer(self, answer: str) -> None:
+        self.labelUserAnswer.setText("Your answer was: \n" + answer)
 
 class QuizGameWindow(DefaultGameMdiSubWindow):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ..., flags: QtCore.Qt.WindowType = QtCore.Qt.WindowType.SubWindow, controller=None) -> None:
@@ -195,46 +217,28 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
         self.menuName = "Quiz"
         self.gameName = "AnkiQuizGame"
         self.setObjectName = "QuizGameWindow"
-        # self.views = list()
+
 
         self.questionsWidget = QuizGameQuestionWidget(
             self, self.correctAnswer, self.wrongAnswer)
-        # self.mainWidget.show()
-        # self.mainWidget.hide()
         self.wrongAnswerWidget = QuizGameWrongAnswerWidget(
             self, self.nextQuestion)
-        # self.wrongAnswerWidget.hide()
         self.goodAnswerWidget = QuizGameGoodAnswerWidget(
             self, self.nextQuestion)
-        # self.goodAnswerWidget.hide()
         self.noQuestionsLoadedWidget = NoQuestionsLoadedWidget(
             self, self.startWizard)
-        # self.noQuestionsLoadedWidget.hide()
+
         self.views = QtWidgets.QStackedWidget(self)
         self.views.addWidget(self.questionsWidget)
         self.views.addWidget(self.wrongAnswerWidget)
         self.views.addWidget(self.goodAnswerWidget)
         self.views.addWidget(self.noQuestionsLoadedWidget)
-
         self.setWidget(self.views)
-        # self.setWidget(self.mainWidget)
-        # self.mainWidget.buttonA.clicked.connect(self.onClick)
 
-        # self.goodAnswerWidget.show()
         if len(self.controller.model.questions) == 0:
             self.views.setCurrentWidget(self.noQuestionsLoadedWidget)
-            # self.startWizard()
-            # self.setWidget(self.noQuestionsLoadedWidget)
-            # loadQuestionsWizard = ImportWizard(self)
         else:
             self.loadNewQuizSet()
-        # self.controller.attachInterrupt(self)
-
-    def onClick(self):
-        # self.mainWidget.hide()
-        # self.setWidget(self.wrongAnswerWidget)
-        # self.wrongAnswerWidget.show()
-        print("widget2")
 
     def startWizard(self):
         ImportWizard(self, self.loadWizardResults)
@@ -251,15 +255,18 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
     def loadNewQuizSet(self):
         self.questionsWidget.setNewLabels(self.controller.getQuizSet())
 
-    def correctAnswer(self):
+    def correctAnswer(self, question, userAnswer):
+        self.controller.goodAnswer()
+        self.goodAnswerWidget.setQuestion(question)
+        self.goodAnswerWidget.setUserAnswer(userAnswer)
         self.views.setCurrentWidget(self.goodAnswerWidget)
-        print('correct')
 
-    def wrongAnswer(self):
+    def wrongAnswer(self, question, userAnswer, correctAnswer):
+        self.wrongAnswerWidget.setQuestion(question)
+        self.wrongAnswerWidget.setUserAnswer(userAnswer)
+        self.wrongAnswerWidget.setCorrectAnswer(correctAnswer)
         self.views.setCurrentWidget(self.wrongAnswerWidget)
-        print("wrong")
 
     def nextQuestion(self):
         self.loadNewQuizSet()
         self.views.setCurrentWidget(self.questionsWidget)
-        print('next question')

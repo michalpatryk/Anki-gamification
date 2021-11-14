@@ -5,8 +5,8 @@ from Core.GameControllerBase import GameControllerBase
 
 # contains a set of functions that are executed by said game widget
 class QuizGameController(GameControllerBase):
-    def __init__(self, activeActionHandle) -> None:
-        super().__init__()
+    def __init__(self, gameMainframe) -> None:
+        super().__init__(gameMainframe)
         self.model = QuizGameModel()
         self.gameName = "AnkiQuizGame"
         self.controllerName = "AnkiQuizGameController"
@@ -44,6 +44,9 @@ class QuizGameController(GameControllerBase):
             answers.append(self.getRandomAnswer())
         quizSet['wrongAnswers'] = answers
         return quizSet
+
+    def goodAnswer(self):
+        self.gameMainframe.activeAction()
 
 
 class QuizGameModel():

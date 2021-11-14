@@ -14,9 +14,9 @@ class GameMainframe():
         # list of all the game controllers
         # self.games = list()
 
-        # self.games.append(QuizGameController())
+        # QuizGame should always be active
         if not any(type(game) is QuizGameController for game in self.games.values()):
-            quizGameController = QuizGameController(self.activeAction)
+            quizGameController = QuizGameController(self)
             self.games[quizGameController.controllerName] = quizGameController
 
     def update(self):  # update all the games here

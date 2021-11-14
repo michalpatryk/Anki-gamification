@@ -1,5 +1,7 @@
 class GameControllerBase():
-    def __init__(self) -> None:
+    def __init__(self, gameMainframe) -> None:
+        self.gameMainframe = gameMainframe
+
         self.model = None
         self.gameName = "Default"
         self.controllerName = "DefaultController"
@@ -13,6 +15,3 @@ class GameControllerBase():
     
     def getModel(self):
         return self.model.__dict__
-
-    # def getControllerName():
-    #     return "DefaultController"
