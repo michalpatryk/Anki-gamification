@@ -61,10 +61,16 @@ class GameMainframe():
     def addGame(self, controller: type):
         if not any(controller is type(game) for game in self.games.values()):
             initializedController = controller(self)
-            self.games[initializedController.controllerName] = controller(self)
+            self.games[initializedController.controllerName] = initializedController
             return initializedController
         else:
             return None
 
     def getGameByControllerType(self, controller: type):
         return [game for game in self.games.values() if type(game) == controller][0]
+
+    def getScore(self):
+        return self.score
+
+    def decreaseScore(self, value):
+        self.score -= value

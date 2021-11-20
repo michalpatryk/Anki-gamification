@@ -2,14 +2,8 @@ import typing
 from PyQt6 import QtCore, QtWidgets, QtGui
 
 import GamesActive
-
-from GamesActive.QuizGame.AnkiQuizGameController import QuizGameModel
 from .GameMainframe import GameMainframe
 from .DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
-
-from GamesActive.QuizGame.AnkiQuizWindow import QuizGameWindow
-# we can add an component list file in GamesActive with imports only. 
-# I'm probably reinventing packages
 
 class MdiView(QtWidgets.QMdiArea):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ...) -> None:
@@ -37,7 +31,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.mdiArea = MdiView(self)
         self.setCentralWidget(self.mdiArea)
 
-        # customize menubar
+        # Customize menubar
         self.menuBar = QtWidgets.QMenuBar(self)
         self.gameMenu = QtWidgets.QMenu("&Games", self)
 
@@ -49,6 +43,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.gameLoopTimer.timeout.connect(self.gameMainframe.update)
         self.gameLoopTimer.start(100)
 
+        # Startup game windows
         games = GamesActive.loadFiles()
         for game in games:
             controller = self.gameMainframe.addGame(game.controller)

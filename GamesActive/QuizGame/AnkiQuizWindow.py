@@ -1,6 +1,6 @@
 import typing
 import random
-from PyQt6 import QtCore, QtWidgets, QtGui
+from PyQt6 import QtCore, QtWidgets
 from Core.DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
 
 from .AnkiQuizGameController import QuizGameController
