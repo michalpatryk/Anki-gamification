@@ -65,6 +65,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.menuActionsDictionary[game.menuName] =  QtGui.QAction(game.menuName, self.gameMenu, checkable=True)
         self.menuActionsDictionary[game.menuName].toggled.connect(lambda: self.GameMenuEntry(game))
         self.menuActionsDictionary[game.menuName].setEnabled(game.isUnlocked)
+        self.menuActionsDictionary[game.menuName].setChecked(game.shouldStartVisible)
         self.gameMenu.addAction(self.menuActionsDictionary[game.menuName])
 
 

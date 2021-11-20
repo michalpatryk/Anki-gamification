@@ -63,5 +63,12 @@ class GameMainframe():
     def getScore(self):
         return self.score
 
+    def increaseScore(self, value):
+        self.score += value
+
     def decreaseScore(self, value):
         self.score -= value
+
+    # Multiplier as a pair of value and operator? Or a lambda?
+    def addGlobalMultiplier(self, multiplier):
+        pass

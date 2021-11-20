@@ -1,5 +1,6 @@
 import random
-from Core.GameControllerBase import GameControllerBase
+import operator
+from Core.GameControllerBase import GameControllerBase, DefaultModel
 # from .AnkiQuizWindow import QuizGameWindow
 
 
@@ -18,6 +19,14 @@ class QuizGameController(GameControllerBase):
 
     def update(self):
         self.model.someValue += 1
+        # upgrades should be handled here or in goodAnswer?
+        upgrade2 = DefaultModel.Upgrade("RewardMultiplier0", "Answer reward multiplier", False, 5, DefaultModel.UpgradeType.ACTIVEUPGRADE, lambda score: score * 5)
+        self.test2(upgrade2.type, upgrade2.function)
+
+    def test2(self, type, operation):
+        score = 5
+        score = operation(5)
+
 
     def appendQuestionAndAnswer(self, question, answer):
         self.model.questions.append(question)
@@ -49,8 +58,10 @@ class QuizGameController(GameControllerBase):
         self.gameMainframe.activeAction(5)
 
 
-class QuizGameModel():
+
+class QuizGameModel(DefaultModel):
     def __init__(self) -> None:
+        super().__init__()
         # might want to change that in the future - it is too dependent on the ordering
         self.questions = list()
         self.answers = list()

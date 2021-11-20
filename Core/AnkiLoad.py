@@ -116,21 +116,30 @@ class AnkiNotesLoader():
             else:
                 self.selectedAnswerFields[noteType.id] = [field]
 
+    # should be subjected to refactoring in order to merge these two for loops.
     def getAnswersAndQuestions(self) -> tuple[list, list]:
         for noteType in self.selectedQuestionFields.items():
             notes = db.Notes.select(db.Notes.flds).where(db.Notes.mid == noteType[0])
             for note in notes:
-                answer = list()
+                question = list()
                 for field in noteType[1]:
-                    answer.append(note.flds[field.ord])
-                self.questions.append('\n'.join([str(elem) for elem in answer]))
+                    try:
+                        question.append(note.flds[field.ord])
+                    except IndexError:
+                        print("Detected empty field while importing questions! Adding first field of a card")
+                        answer.append(note.flds[0])
+                self.questions.append('\n'.join([str(elem) for elem in question]))
 
         for noteType in self.selectedAnswerFields.items():
             notes = db.Notes.select(db.Notes.flds).where(db.Notes.mid == noteType[0])
             for note in notes:
                 answer = list()
                 for field in noteType[1]:
-                    answer.append(note.flds[field.ord])
+                    try:
+                        answer.append(note.flds[field.ord])
+                    except IndexError:
+                        print("Detected empty field while importing answers! Adding last field of a card")
+                        answer.append(note.flds[-1])
                 self.answers.append('\n'.join([str(elem) for elem in answer]))
 
         return self.questions, self.answers
