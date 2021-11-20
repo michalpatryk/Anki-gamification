@@ -9,7 +9,6 @@ class ScoreController(GameControllerBase):
 
     def attachScoreUpdateHandle(self, scoreUpdateHandle):
         self.updateScore = scoreUpdateHandle
-        self.test = 1
 
     def update(self) -> None:
         if self.updateScore is not None:
