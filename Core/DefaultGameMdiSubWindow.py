@@ -10,6 +10,8 @@ class DefaultGameMdiSubWindow(QtWidgets.QMdiSubWindow):
         self.setMaximumSize(250, 250)
         self.setWindowFlags(self.windowFlags() &~ QtCore.Qt.WindowType.WindowMaximizeButtonHint)
         self.menuName = "Default"
+        self.isUnlocked = False
+        self.shouldStartVisible = False
         self.gameName = "DefaultGameName"
         self.controller = controller
 

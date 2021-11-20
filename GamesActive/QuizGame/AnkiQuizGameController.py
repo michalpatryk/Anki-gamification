@@ -46,7 +46,7 @@ class QuizGameController(GameControllerBase):
         return quizSet
 
     def goodAnswer(self):
-        self.gameMainframe.activeAction()
+        self.gameMainframe.activeAction(5)
 
 
 class QuizGameModel():

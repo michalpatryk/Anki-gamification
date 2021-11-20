@@ -1,6 +1,8 @@
 import typing
 from PyQt6 import QtCore, QtWidgets, QtGui
 
+import GamesActive
+
 from GamesActive.QuizGame.AnkiQuizGameController import QuizGameModel
 from .GameMainframe import GameMainframe
 from .DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
@@ -28,6 +30,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
     def __init__(self, gameMainframe: GameMainframe) -> None:
         super(AnkiGamificationMainWindow, self).__init__()
         self.setGeometry(50, 50, 500, 300)
+        self.setMaximumSize(500, 500)
         self.setWindowTitle("AnkiGamification")
 
         # Initialize main area
@@ -46,36 +49,27 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.gameLoopTimer.timeout.connect(self.gameMainframe.update)
         self.gameLoopTimer.start(100)
 
-        # to be replaced by some include 
-        for game in gameMainframe.games.items():
-            if game[1].gameName == 'AnkiQuizGame':
-                self.initGame(QuizGameWindow, game[1])
-            if game[1].gameName == 'Default':
-                self.initGame(DefaultGameMdiSubWindow, game[1])
+        games = GamesActive.loadFiles()
+        for game in games:
+            controller = self.gameMainframe.addGame(game.controller)
+            if controller is not None:
+                self.initGame(game.window, controller)
+            else:
+                self.initGame(game.window, self.gameMainframe.getGameByControllerType(game.controller))
 
- 
-
-
-        # self.initGame(DefaultGameMdiSubWindow)
-        # self.initGame(QuizGameWindow)
-        
-        
 
         self.menuBar.addMenu(self.gameMenu)
         self.setMenuBar(self.menuBar)
 
 
-
-# extend it so that it gives a controller
     def initGame(self, gameType: DefaultGameMdiSubWindow, controller):
-        game = gameType(self, controller=controller)
-        game.hide()
-        if (game in self.gameMainframe.games):
-            print("I'm in")
+        game = gameType(self, controller=controller) #type: DefaultGameMdiSubWindow
+        game.setVisible(game.shouldStartVisible)
         self.mdiArea.addSubWindow(game)
         self.gamesDictionary[game.gameName] = game
         self.menuActionsDictionary[game.menuName] =  QtGui.QAction(game.menuName, self.gameMenu, checkable=True)
         self.menuActionsDictionary[game.menuName].toggled.connect(lambda: self.GameMenuEntry(game))
+        self.menuActionsDictionary[game.menuName].setEnabled(game.isUnlocked)
         self.gameMenu.addAction(self.menuActionsDictionary[game.menuName])
 
 

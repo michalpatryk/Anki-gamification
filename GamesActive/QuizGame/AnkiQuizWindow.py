@@ -215,7 +215,9 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ..., flags: QtCore.Qt.WindowType = QtCore.Qt.WindowType.SubWindow, controller=None) -> None:
         super().__init__(parent=parent, flags=flags, controller=controller)
         self.menuName = "Quiz"
+        self.isUnlocked = True
         self.gameName = "AnkiQuizGame"
+        self.shouldStartVisible = True
         self.setObjectName = "QuizGameWindow"
 
 

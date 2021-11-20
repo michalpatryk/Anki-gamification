@@ -1,6 +1,6 @@
 import json
 import pickle
-from GamesActive.QuizGame.AnkiQuizGameController import QuizGameController, QuizGameModel
+from GamesActive.QuizGame.AnkiQuizGameController import QuizGameController
 
 
 class GameMainframe():
@@ -24,8 +24,8 @@ class GameMainframe():
         for game in self.games.values():
             game.update()
 
-    def activeAction(self):
-        self.score += 1
+    def activeAction(self, weight):
+        self.score += weight
         print(self.score)
 
     def load(self):
@@ -57,3 +57,14 @@ class GameMainframe():
                 pickle.dump(saveData, f)
         except EnvironmentError:
             print(EnvironmentError)
+
+    def addGame(self, controller: type):
+        if not any(controller is type(game) for game in self.games.values()):
+            initializedController = controller(self)
+            self.games[initializedController.controllerName] = controller(self)
+            return initializedController
+        else:
+            return None
+
+    def getGameByControllerType(self, controller: type):
+        return [game for game in self.games.values() if type(game) == controller][0]
