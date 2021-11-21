@@ -13,15 +13,17 @@ class QuizGameController(GameControllerBase):
         self.controllerName = "AnkiQuizGameController"
         self.view = None
 
-    # if needed, you can attach interrupt and modify your view
-    # def attachInterrupt(self, widget : QuizGameWindow):
-    #     self.view = widget
+        self.upgrades.append(GameControllerBase.Upgrade(0, "RewardMultiplier0", "Answer reward multiplier", False, 5, GameControllerBase.UpgradeType.ACTIVEUPGRADE, lambda score: score * 2, True))
+        self.upgrades.append(GameControllerBase.Upgrade(1, "RewardMultiplier1", "Answer reward multiplier", False, 10, GameControllerBase.UpgradeType.ACTIVEUPGRADE, lambda score: score * 2, False))
+        self.upgrades.append(GameControllerBase.Upgrade(2, "RewardMultiplier2", "Answer reward multiplier", False, 22, GameControllerBase.UpgradeType.ACTIVEUPGRADE, lambda score: score * 2, False))
+
 
     def update(self):
+        return
         self.model.someValue += 1
         # upgrades should be handled here or in goodAnswer?
-        upgrade2 = DefaultModel.Upgrade("RewardMultiplier0", "Answer reward multiplier", False, 5, DefaultModel.UpgradeType.ACTIVEUPGRADE, lambda score: score * 5)
-        self.test2(upgrade2.type, upgrade2.function)
+        # upgrade2 = DefaultModel.Upgrade("RewardMultiplier0", "Answer reward multiplier", False, 5, DefaultModel.UpgradeType.ACTIVEUPGRADE, lambda score: score * 5, True)
+        # self.test2(upgrade2.type, upgrade2.function)
 
     def test2(self, type, operation):
         score = 5
@@ -72,3 +74,4 @@ class QuizGameModel(DefaultModel):
         # self.adverb = list()
 
         self.someValue = 0
+        

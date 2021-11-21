@@ -1,4 +1,5 @@
 import json
+import time
 import pickle
 from GamesActive.QuizGame.AnkiQuizGameController import QuizGameController
 
@@ -9,6 +10,7 @@ class GameMainframe():
         self.score = 0
         self.multipliers = list()
         self.games = dict()
+        self.lastAutosave = time.time()
 
         # QuizGame should always be active
         if not any(type(game) is QuizGameController for game in self.games.values()):
@@ -19,6 +21,10 @@ class GameMainframe():
         self.score += 1
         for game in self.games.values():
             game.update()
+        if time.time() - self.lastAutosave > 60 * 10:
+            self.lastAutosave = time.time()
+            self.save()
+
 
     def activeAction(self, weight):
         self.score += weight
@@ -72,3 +78,9 @@ class GameMainframe():
     # Multiplier as a pair of value and operator? Or a lambda?
     def addGlobalMultiplier(self, multiplier):
         pass
+
+    def getAllUpgrades(self):
+        upgrades = list()
+        for game in self.games.values():
+            upgrades.append(game.getUpgrades())
+        return upgrades

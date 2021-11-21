@@ -2,6 +2,22 @@ from collections import namedtuple
 from enum import Enum, auto
 import typing
 class GameControllerBase():
+    class UpgradeType(str, Enum):
+        ACTIVEUPGRADE = "ACTIVEUPGRADE",
+        GLOBALUPGRADE = "GLOBALUPGRADE",
+        WINDOWUPGRADE = "WINDOWUPGRADE"
+
+    class Upgrade(typing.NamedTuple):
+        id: int
+        name: str                   # upgrade name
+        description: str            # upgrade description
+        isBought: bool              # flag to check if upgrade is bought
+        cost: int                   # upgrade cost in shop
+        type: Enum                  # upgrade type
+        function: typing.Callable   # function with an action that the upgrade does
+        isVisible: bool = False     # flag to set whether an upgrade should show in shop or not
+
+
     def __init__(self, gameMainframe) -> None:
         self.gameMainframe = gameMainframe
 
@@ -9,6 +25,7 @@ class GameControllerBase():
         self.gameName = "Default"
         self.controllerName = "DefaultController"
         self.enabled = True
+        self.upgrades = list()
 
     def update(self) -> None:
         pass
@@ -22,30 +39,24 @@ class GameControllerBase():
     
     def getModel(self):
         if self.model is not None:
+            self.model.upgrades = list()
+            for upgrade in self.upgrades:
+                self.model.upgrades.append(DefaultModel.Upgrade(upgrade.name, upgrade.isBought)._asdict())
             return self.model.__dict__
         else:
             return None
 
     def getUpgrades(self):
-        pass
+        return {'gameName': self.gameName, 'upgrades': self.upgrades}
 
     # activates upgrade bought in shop
     def activateUpgrade(self):
         pass
 
 class DefaultModel():
-    class UpgradeType(Enum):
-        ACTIVEUPGRADE = auto(),
-        GLOBALUPGRADE = auto(),
-        WINDOWUPGRADE = auto()
-
     class Upgrade(typing.NamedTuple):
         name: str                   # unique upgrade id
-        desciption: str             # upgrade description
-        isUnlocked: bool            # flag to check if upgrade is bought
-        cost: int                   # upgrade cost in shop
-        type: Enum                  # upgrade type
-        function: typing.Callable   # lambda/function with what to do
+        isBought: bool              # flag to check if upgrade is bought
 
     def __init__(self) -> None:
         self.upgrades = list()

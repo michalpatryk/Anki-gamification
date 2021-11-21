@@ -6,3 +6,5 @@ class UpgradeShopController(GameControllerBase):
         self.gameName = "UpgradeShop"
         self.controllerName = "UpgradeShopController"
 
+    def getAvaliableUpgrades(self):
+        return self.gameMainframe.getAllUpgrades()
