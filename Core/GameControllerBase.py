@@ -1,5 +1,6 @@
 from collections import namedtuple
 from enum import Enum, auto
+import typing
 class GameControllerBase():
     def __init__(self, gameMainframe) -> None:
         self.gameMainframe = gameMainframe
@@ -37,7 +38,14 @@ class DefaultModel():
         ACTIVEUPGRADE = auto(),
         GLOBALUPGRADE = auto(),
         WINDOWUPGRADE = auto()
-    # name - unique upgrade id, upgrade description, asName, cost to unlock, upgrade type, lambda with common function
-    Upgrade = namedtuple("Upgrade", ['name', 'description', 'isUnlocked', 'cost', 'type', 'function'])
+
+    class Upgrade(typing.NamedTuple):
+        name: str                   # unique upgrade id
+        desciption: str             # upgrade description
+        isUnlocked: bool            # flag to check if upgrade is bought
+        cost: int                   # upgrade cost in shop
+        type: Enum                  # upgrade type
+        function: typing.Callable   # lambda/function with what to do
+
     def __init__(self) -> None:
         self.upgrades = list()

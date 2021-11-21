@@ -219,6 +219,7 @@ class QuizGameWindow(DefaultGameMdiSubWindow):
         self.gameName = "AnkiQuizGame"
         self.shouldStartVisible = True
         self.setObjectName = "QuizGameWindow"
+        self.setWindowTitle(self.menuName)
 
 
         self.questionsWidget = QuizGameQuestionWidget(

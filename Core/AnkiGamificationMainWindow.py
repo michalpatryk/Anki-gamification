@@ -8,16 +8,15 @@ from .DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
 class MdiView(QtWidgets.QMdiArea):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ...) -> None:
         super().__init__(parent=parent)
-        # self.mdiSubWindow = DefaultGameMdiSubWindow(
-        #     self)
-        # # self.mdiSubWindow2 = QuizGameWindow(self)
+        sizePolicy = QtWidgets.QSizePolicy(
+            QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        self.setSizePolicy(sizePolicy)
 
-        # button = QtWidgets.QPushButton()
-        # button.clicked.connect(AnkiGamificationMainWindow.onClick)
-        # self.mdiSubWindow.setWidget(button)
+    def minimumSizeHint(self) -> QtCore.QSize:
+        return QtCore.QSize(200, 100)
 
-        # self.addSubWindow(self.mdiSubWindow)
-        # # self.addSubWindow(self.mdiSubWindow2)
 
 
 class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
@@ -30,7 +29,6 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         # Initialize main area
         self.mdiArea = MdiView(self)
         self.setCentralWidget(self.mdiArea)
-
         # Customize menubar
         self.menuBar = QtWidgets.QMenuBar(self)
         self.gameMenu = QtWidgets.QMenu("&Games", self)
@@ -52,8 +50,10 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
             else:
                 self.initGame(game.window, self.gameMainframe.getGameByControllerType(game.controller))
 
+        self.createWindowControlMenu()
 
         self.menuBar.addMenu(self.gameMenu)
+        self.menuBar.addMenu(self.windowLocationMenu)
         self.setMenuBar(self.menuBar)
 
 
@@ -79,6 +79,12 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
     def mdiSubwindowOnClose(self, sender: DefaultGameMdiSubWindow):
         self.menuActionsDictionary[sender.menuName].setChecked(False)
         self.gamesDictionary[sender.gameName].hide()
+
+    def createWindowControlMenu(self):
+        self.windowLocationMenu = QtWidgets.QMenu("&Window control", self)
+        self.cascadeWindowsAction =  QtGui.QAction("Cascade windows", self.windowLocationMenu)
+        self.cascadeWindowsAction.triggered.connect(self.mdiArea.cascadeSubWindows)
+        self.windowLocationMenu.addAction(self.cascadeWindowsAction)
         
 
     def onClick(self):

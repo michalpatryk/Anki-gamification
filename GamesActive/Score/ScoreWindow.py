@@ -48,6 +48,9 @@ class ScoreWindow(DefaultGameMdiSubWindow):
         self.isUnlocked = True
         self.shouldStartVisible = False
         self.gameName = "ScoreDisplay"
+        self.setWindowTitle(self.menuName)
+
+
         self.scoreWidget = ScoreWidget(self)
         self.setWidget(self.scoreWidget)
         self.controller.attachScoreUpdateHandle(self.updateScoreValue)
