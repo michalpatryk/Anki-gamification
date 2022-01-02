@@ -1,6 +1,19 @@
 from Core.DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
-from PyQt6 import QtCore, QtWidgets
+from PyQt6 import QtCore, QtWidgets, QtGui
 import typing
+
+class UpgradesContainer(QtWidgets.QTreeWidget):
+    def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ...) -> None:
+        super().__init__(parent=parent)
+        # self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+
+    # def itemEntered(self, item: QtWidgets.QTreeWidgetItem, column: int) -> None:
+    #     print(123)
+    #     return super().itemEntered(item, column)
+
+    # def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
+    #     print(123)
+    #     return super().mouseMoveEvent(event)
 
 class UpgradeShopWidget(QtWidgets.QWidget):
     def __init__(self, parent: typing.Optional['QtWidgets.QWidget'], getAvaliableUpgradesHandle) -> None:
@@ -13,11 +26,11 @@ class UpgradeShopWidget(QtWidgets.QWidget):
         self.buyAllButton = QtWidgets.QPushButton(self)
         self.buyAllButton.setObjectName("buyAllButton")
         
-        self.upgradesTree = QtWidgets.QTreeWidget(self)
+        self.upgradesTree = UpgradesContainer(self)
         self.upgradesTree.setObjectName("upgradesTree")
-        self.upgradesTree.setColumnCount(3)
+        self.upgradesTree.setColumnCount(4)
         self.upgradesTree.setHeaderItem(QtWidgets.QTreeWidgetItem(
-            ["Description", "Type", "Cost"]))
+            ["Description", "Type", "Cost/Buy"]))
         self.upgradesTree.header().setStretchLastSection(False)
         self.upgradesTree.header().setSectionResizeMode(
             0, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
@@ -25,6 +38,7 @@ class UpgradeShopWidget(QtWidgets.QWidget):
             1, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
         self.upgradesTree.header().setSectionResizeMode(
             2, QtWidgets.QHeaderView.ResizeMode.ResizeToContents)
+
 
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
@@ -36,16 +50,23 @@ class UpgradeShopWidget(QtWidgets.QWidget):
         self.buyAllButton.setText("Buy all available")
         self.loadUpgrades()
 
+    def test(self):
+        print(123)
+
     def loadUpgrades(self):
-        games = self.getUpgrades()
-        for game in games:
+        self.games = self.getUpgrades()
+        for game in self.games:
             if len(game['upgrades']) > 0:
-                gameUpgradesTree = QtWidgets.QTreeWidgetItem(
-                    self.upgradesTree, [game['gameName']])
+                gameUpgradesTree = QtWidgets.QTreeWidgetItem(self.upgradesTree, [game['gameName']])
 
                 for upgrade in game['upgrades']:
+                    
                     upgradeItem = QtWidgets.QTreeWidgetItem([upgrade.description, upgrade.type, str(upgrade.cost)])
+                    upgradeItem.id = upgrade.id
                     gameUpgradesTree.addChild(upgradeItem)
+                    button = QtWidgets.QPushButton(self.upgradesTree)
+                    button.setText(str(upgrade.cost))
+                    self.upgradesTree.setItemWidget(upgradeItem, 2, button)
 
                 gameUpgradesTree.setExpanded(True)
 

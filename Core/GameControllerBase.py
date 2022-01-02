@@ -15,7 +15,7 @@ class GameControllerBase():
         cost: int                   # upgrade cost in shop
         type: Enum                  # upgrade type
         function: typing.Callable   # function with an action that the upgrade does
-        isVisible: bool = False     # flag to set whether an upgrade should show in shop or not
+        isUnlocked: bool = False     # flag to set whether an upgrade should show in shop or not
 
 
     def __init__(self, gameMainframe) -> None:
