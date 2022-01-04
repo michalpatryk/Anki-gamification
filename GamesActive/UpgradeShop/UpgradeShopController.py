@@ -6,13 +6,24 @@ class UpgradeShopController(GameControllerBase):
         self.gameName = "UpgradeShop"
         self.controllerName = "UpgradeShopController"
 
-    def getAvaliableUpgrades(self):
+    def getAvaliableUpgrades(self) -> list:
         upgrades = self.gameMainframe.getAllUpgrades()
         avaliableUpgrades = list()
         for game in upgrades:
             avaliableUpgrades.append({'gameName': game['gameName'], 'upgrades': list()})
             for upgrade in game['upgrades']:
                 if upgrade.isUnlocked:
-                    avaliableUpgrades[-1]['upgrades'].append(copy.copy(upgrade))
+                    # avaliableUpgrades[-1]['upgrades'].append(copy.copy(upgrade))
+                    avaliableUpgrades[-1]['upgrades'].append(upgrade)
     
         return avaliableUpgrades
+
+    def canBuyUpgrade(self, upgrade) -> bool:
+        return self.gameMainframe.canBuyUpgrade(upgrade.cost)
+
+    def buyUpgrade(self, upgrade):
+        if self.gameMainframe.buyUpgrade(upgrade):
+            upgrade.onBoughtSuccess()
+            return True
+        else:
+            return False

@@ -3,19 +3,25 @@ from enum import Enum, auto
 import typing
 class GameControllerBase():
     class UpgradeType(str, Enum):
-        ACTIVEUPGRADE = "ACTIVEUPGRADE",
-        GLOBALUPGRADE = "GLOBALUPGRADE",
-        WINDOWUPGRADE = "WINDOWUPGRADE"
+        ACTIVE_UPGRADE = "ACTIVE_UPGRADE",
+        GLOBAL_UPGRADE = "GLOBAL_UPGRADE",
+        WINDOW_UPGRADE = "WINDOW_UPGRADE"
 
-    class Upgrade(typing.NamedTuple):
-        id: int
-        name: str                   # upgrade name
-        description: str            # upgrade description
-        isBought: bool              # flag to check if upgrade is bought
-        cost: int                   # upgrade cost in shop
-        type: Enum                  # upgrade type
-        function: typing.Callable   # function with an action that the upgrade does
-        isUnlocked: bool = False     # flag to set whether an upgrade should show in shop or not
+    class Upgrade():
+        def __init__(self, id: int, name: str, description: str, cost: int, type: Enum, function: typing.Callable, isUnlocked: bool, isBought: bool = False, onBoughtSuccess: typing.Callable = None) -> None:
+            self.id = id
+            self.name = name                  # upgrade name
+            self.description = description    # upgrade description
+            self.isBought = isBought          # flag to check if upgrade is bought
+            self.cost = cost                  # upgrade cost in shop
+            self.type = type                  # upgrade type
+            self.function = function          # function with an action that the upgrade does
+            self.isUnlocked = isUnlocked      # flag to set whether an upgrade should show in shop or not
+            self.onBoughtSuccess = onBoughtSuccess
+
+        def onBoughtSuccess(self):
+            if self.onBoughtSuccess is not None:
+                self.onBoughtSuccess()
 
 
     def __init__(self, gameMainframe) -> None:

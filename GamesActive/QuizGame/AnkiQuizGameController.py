@@ -13,9 +13,12 @@ class QuizGameController(GameControllerBase):
         self.controllerName = "AnkiQuizGameController"
         self.view = None
 
-        self.upgrades.append(GameControllerBase.Upgrade(0, "RewardMultiplier0", "Answer reward multiplier", False, 5, GameControllerBase.UpgradeType.ACTIVEUPGRADE, lambda score: score * 2, True))
-        self.upgrades.append(GameControllerBase.Upgrade(1, "RewardMultiplier1", "Answer reward multiplier", False, 10, GameControllerBase.UpgradeType.ACTIVEUPGRADE, lambda score: score * 2, False))
-        self.upgrades.append(GameControllerBase.Upgrade(2, "RewardMultiplier2", "Answer reward multiplier", False, 22, GameControllerBase.UpgradeType.ACTIVEUPGRADE, lambda score: score * 2, False))
+        self.upgrades.append(GameControllerBase.Upgrade(id=0, name="RewardMultiplier", description="Answer reward multiplier", 
+                                                        isBought=False, cost=5, type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, 
+                                                        function=lambda score: score * 2, isUnlocked=True, 
+                                                        onBoughtSuccess=self.generateNewMultiplierReward))
+        # self.upgrades.append(GameControllerBase.Upgrade(id=1, name="RewardMultiplier0", description="Answer reward multiplier", isBought=False, cost=10, type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, function=lambda score: score * 2, isUnlocked=False))
+        # self.upgrades.append(GameControllerBase.Upgrade(id=2, name="RewardMultiplier0", description="Answer reward multiplier", isBought=False, cost=22, type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, function=lambda score: score * 2, isUnlocked=False))
 
 
     def update(self):
@@ -57,8 +60,25 @@ class QuizGameController(GameControllerBase):
         return quizSet
 
     def goodAnswer(self):
-        self.gameMainframe.activeAction(5)
+        baseReward = 5
+        for upgrade in self.upgrades:
+            # if upgrade.type == GameControllerBase.UpgradeType.ACTIVE_UPGRADE and upgrade.isBought == True:
+            if upgrade.type == GameControllerBase.UpgradeType.ACTIVE_UPGRADE:
+                baseReward = upgrade.function(baseReward)
 
+        self.gameMainframe.activeAction(baseReward)
+
+    def generateNewMultiplierReward(self):
+        lastUpgrade = self.upgrades[-1]
+        self.upgrades.append(GameControllerBase.Upgrade(id=lastUpgrade.id + 1, 
+                                                        name="RewardMultiplier_{}".format(lastUpgrade.id + 1), 
+                                                        description="Answer reward multiplier", 
+                                                        isBought=False, 
+                                                        cost=lastUpgrade.cost * 2.2, 
+                                                        type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, 
+                                                        function=lambda score: score * 2, 
+                                                        isUnlocked=True, 
+                                                        onBoughtSuccess=self.generateNewMultiplierReward))
 
 
 class QuizGameModel(DefaultModel):

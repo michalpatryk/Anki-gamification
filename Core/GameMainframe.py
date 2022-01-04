@@ -18,7 +18,7 @@ class GameMainframe():
             self.games[quizGameController.controllerName] = quizGameController
 
     def update(self):  # update all the games here
-        self.score += 1
+        # self.score += 1
         for game in self.games.values():
             game.update()
         if time.time() - self.lastAutosave > 60 * 10:
@@ -84,3 +84,19 @@ class GameMainframe():
         for game in self.games.values():
             upgrades.append(game.getUpgrades())
         return upgrades
+
+    def canBuyUpgrade(self, upgradeCost):
+        if upgradeCost < self.score:
+            return True
+        else:
+            return False
+
+    def buyUpgrade(self, upgrade):
+        if upgrade.cost < self.score and upgrade.isBought == False:
+            self.score -= upgrade.cost
+            upgrade.isBought = True
+            return True
+        else: 
+            return False
+
+            #search game with given name for a upgrade with a given id
