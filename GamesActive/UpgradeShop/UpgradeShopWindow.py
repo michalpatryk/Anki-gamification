@@ -65,14 +65,11 @@ class UpgradeShopWidget(QtWidgets.QWidget):
         for gameUpgrades in self.gamesUpgrades:
             if len(gameUpgrades['upgrades']) > 0:
                 gameUpgradesTree = QtWidgets.QTreeWidgetItem(self.upgradesTree, [gameUpgrades['gameName']])
-
                 for upgrade in gameUpgrades['upgrades']:
                     if upgrade.isBought == False: 
-                        upgradeItem = QtWidgets.QTreeWidgetItem(self.upgradesTree, [upgrade.description, upgrade.type])
-                        upgradeItem.id = upgrade.id
+                        upgradeItem = QtWidgets.QTreeWidgetItem( [upgrade.description, upgrade.type])
                         gameUpgradesTree.addChild(upgradeItem)
                         button = QtWidgets.QPushButton(self.upgradesTree)
-                        button.setObjectName("Button"+str(upgrade.id))
                         button.clicked.connect(lambda checked=False, upgrade=upgrade: self.buyUpgrade(upgrade))
                         button.setText(str(int(upgrade.cost)))
                         button.setProperty("upgrade", upgrade)
