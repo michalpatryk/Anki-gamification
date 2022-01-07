@@ -26,8 +26,8 @@ class UpgradeShopWidget(QtWidgets.QWidget):
         self.canBuyUpgradeHandle = canBuyUpgradeHandle
         self.buyUpgradeHandle = buyUpgradeHandle
 
-        self.showUnlockedCheckbox = QtWidgets.QCheckBox(self)
-        self.showUnlockedCheckbox.setObjectName("showUnlockedCheckbox")
+        self.showBoughtCheckbox = QtWidgets.QCheckBox(self)
+        self.showBoughtCheckbox.setObjectName("showUnlockedCheckbox")
         
         self.buyAllButton = QtWidgets.QPushButton(self)
         self.buyAllButton.setObjectName("buyAllButton")
@@ -49,12 +49,15 @@ class UpgradeShopWidget(QtWidgets.QWidget):
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
         self.gridLayout.addWidget(self.buyAllButton, 1, 1, 1, 1)
-        self.gridLayout.addWidget(self.showUnlockedCheckbox, 1, 0, 1, 1)
+        self.gridLayout.addWidget(self.showBoughtCheckbox, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.upgradesTree, 0, 0, 1, 2)
 
-        self.showUnlockedCheckbox.setText("Show unlocked")
+        self.showBoughtCheckbox.setText("Show bought")
         self.buyAllButton.setText("Buy all available")
         self.loadUpgrades()
+
+        self.buyAllButton.clicked.connect(self.buyAllUpgrades)
+        self.showBoughtCheckbox.clicked.connect(self.loadUpgrades)
 
     def test(self):
         print(123)
@@ -67,18 +70,27 @@ class UpgradeShopWidget(QtWidgets.QWidget):
                 gameUpgradesTree = QtWidgets.QTreeWidgetItem(self.upgradesTree, [gameUpgrades['gameName']])
                 for upgrade in gameUpgrades['upgrades']:
                     if upgrade.isBought == False: 
-                        upgradeItem = QtWidgets.QTreeWidgetItem( [upgrade.description, upgrade.type])
+                        upgradeItem = QtWidgets.QTreeWidgetItem([upgrade.description, upgrade.type])
                         gameUpgradesTree.addChild(upgradeItem)
                         button = QtWidgets.QPushButton(self.upgradesTree)
                         button.clicked.connect(lambda checked=False, upgrade=upgrade: self.buyUpgrade(upgrade))
                         button.setText(str(int(upgrade.cost)))
                         button.setProperty("upgrade", upgrade)
                         self.upgradesTree.setItemWidget(upgradeItem, 2, button)
+                    elif self.showBoughtCheckbox.isChecked() == True:
+                        upgradeItem = QtWidgets.QTreeWidgetItem([upgrade.description, upgrade.type, "{:.3}".format(upgrade.cost)])
+                        gameUpgradesTree.addChild(upgradeItem)
                 gameUpgradesTree.setExpanded(True)
 
     def buyUpgrade(self, upgrade):
         if self.buyUpgradeHandle(upgrade):
             self.loadUpgrades()
+
+    def buyAllUpgrades(self):
+        for game in self.gamesUpgrades:
+            for upgrade in game["upgrades"]:
+                if upgrade.isBought == False and upgrade.isUnlocked == True:
+                    self.buyUpgrade(upgrade=upgrade) 
 
 class UpgradeShopWindow(DefaultGameMdiSubWindow):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ..., flags: QtCore.Qt.WindowType = QtCore.Qt.WindowType.SubWindow, controller=None) -> None:

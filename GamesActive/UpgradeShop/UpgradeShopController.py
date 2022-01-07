@@ -13,7 +13,6 @@ class UpgradeShopController(GameControllerBase):
             avaliableUpgrades.append({'gameName': game['gameName'], 'upgrades': list()})
             for upgrade in game['upgrades']:
                 if upgrade.isUnlocked:
-                    # avaliableUpgrades[-1]['upgrades'].append(copy.copy(upgrade))
                     avaliableUpgrades[-1]['upgrades'].append(upgrade)
     
         return avaliableUpgrades
@@ -27,3 +26,5 @@ class UpgradeShopController(GameControllerBase):
             return True
         else:
             return False
+
+# add some function here to make note to the mainframe controller that a new element is unlocked

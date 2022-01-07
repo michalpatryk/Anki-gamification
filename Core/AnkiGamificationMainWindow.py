@@ -8,6 +8,7 @@ from .DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
 class MdiView(QtWidgets.QMdiArea):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ...) -> None:
         super().__init__(parent=parent)
+        self.setObjectName("MdiView")
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -25,6 +26,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.setGeometry(50, 50, 500, 300)
         self.setMaximumSize(500, 500)
         self.setWindowTitle("AnkiGamification")
+        self.setObjectName("AnkiGamificationMainWindow")
 
         # Initialize main area
         self.mdiArea = MdiView(self)
@@ -85,10 +87,12 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.cascadeWindowsAction =  QtGui.QAction("Cascade windows", self.windowLocationMenu)
         self.cascadeWindowsAction.triggered.connect(self.mdiArea.cascadeSubWindows)
         self.windowLocationMenu.addAction(self.cascadeWindowsAction)
-        
 
-    def onClick(self):
-        print("hey")
+    def getMenuAction(self, menuName):
+        pass
+
+    def replaceMenuAction(self, menuName, action):
+        pass
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.gameMainframe.save()
