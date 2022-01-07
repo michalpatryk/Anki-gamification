@@ -1,5 +1,6 @@
 from Core.DefaultGameMdiSubWindow import DefaultGameMdiSubWindow
 from PyQt6 import QtCore, QtWidgets
+from numbers import Number
 import typing
 
 
@@ -35,9 +36,11 @@ class ScoreWidget(QtWidgets.QWidget):
         self.gridLayout.addWidget(self.scoreValueLabel, 1, 0, 1, 1)
         self.gridLayout.addWidget(self.scoreInformationLabel, 0, 0, 1, 1)
 
-    def updateScoreValue(self, score):
+    def updateScoreValue(self, score: Number):
         self.score = score
-        self.scoreValueLabel.setText(self.basicLabelText.format(size=self.labelSize, score=score))
+
+        displayedScore = "{:.5}".format(score)
+        self.scoreValueLabel.setText(self.basicLabelText.format(size=self.labelSize, score=displayedScore))
 
 
 class ScoreWindow(DefaultGameMdiSubWindow):

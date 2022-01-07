@@ -9,7 +9,7 @@ class GameControllerBase():
 
     class Upgrade():
 
-        def __init__(self, id: int, tier: int, name: str, description: str, cost: int, type: Enum, function: typing.Callable, isUnlocked: bool, isBought: bool = False, onBoughtSuccess: typing.Callable = None, onBoughtFailure: typing.Callable = None) -> None:
+        def __init__(self, id: int, tier: int, name: str, description: str, cost: int, type: Enum, function: str, isUnlocked: bool, isBought: bool = False, onBoughtSuccess: typing.Callable = None, onBoughtFailure: typing.Callable = None) -> None:
             self.id = id
             self.tier = tier
             self.name = name                  # upgrade name
@@ -19,17 +19,44 @@ class GameControllerBase():
             self.type = type                  # upgrade type
             self.function = function          # function with an action that the upgrade does
             self.isUnlocked = isUnlocked      # flag to set whether an upgrade should show in shop or not
-            self.onBoughtSuccess = onBoughtSuccess
-            self.onBoughtFailure = onBoughtFailure
-
+            self.onBoughtSuccessHandle = onBoughtSuccess
+            self.onBoughtFailureHandle = onBoughtFailure
 
         def onBoughtSuccess(self):
-            if self.onBoughtSuccess is not None:
-                self.onBoughtSuccess()
+            if self.onBoughtSuccessHandle is not None:
+                self.onBoughtSuccessHandle()
         
         def onBoughtFailure(self):
-            if self.onBoughtFailure is not None:
-                self.onBoughtFailure()
+            if self.onBoughtFailureHandle is not None:
+                self.onBoughtFailureHandle()
+
+        def calculateMultiplier(baseValue, upgrades):
+            #ex "ADD 1" "ADD 2" "ADD 3"
+            # "MULTIPLY 2" "MULTIPLY 2"
+            # "POWER 1.15" "POWER 1.1"
+            # "ADD 1; MULTIPLY 1"
+            #in essence: a string with pairs
+
+            upgradePairs = [upgrade.function.split(";") for upgrade in upgrades if upgrade.isBought == True]
+            additions = list()
+            multipliers = list()
+            powers = list()
+            for upgradeStack in upgradePairs:
+                for upgrade in upgradeStack:
+                    upgradeData = upgrade.split(" ")
+                    upgradeData[0] = upgradeData[0].upper()
+                    if upgradeData[0] == "ADD":
+                        additions.append(float(upgradeData[1]))
+                    elif upgradeData[0] == "MULTIPLY":
+                        multipliers.append(float(upgradeData[1]))
+                    elif upgradeData[0] == "POWER":
+                        powers.append(float(upgradeData[1]))
+            value = baseValue + sum(additions)
+            for multiplier in multipliers:
+                value *= multiplier
+            for power in powers:
+                value ** power
+            return value
 
 
     def __init__(self, gameMainframe) -> None:

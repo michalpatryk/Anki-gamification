@@ -14,23 +14,15 @@ class QuizGameController(GameControllerBase):
         self.view = None
 
         self.upgrades.append(GameControllerBase.Upgrade(id=0, tier=0, name="RewardMultiplier", description="Answer reward multiplier", 
-                                                        isBought=False, cost=5, type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, 
-                                                        function=lambda score: score * 2, isUnlocked=True, 
+                                                        isBought=False, cost=5.0, type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, 
+                                                        function="MULTIPLY 2", isUnlocked=True, 
                                                         onBoughtSuccess=self.generateNewMultiplierReward,
                                                         onBoughtFailure=None))
-        # self.upgrades.append(GameControllerBase.Upgrade())
-
-
-    def update(self):
-        return
-        self.model.someValue += 1
-        # upgrades should be handled here or in goodAnswer?
-        # upgrade2 = DefaultModel.Upgrade("RewardMultiplier0", "Answer reward multiplier", False, 5, DefaultModel.UpgradeType.ACTIVEUPGRADE, lambda score: score * 5, True)
-        # self.test2(upgrade2.type, upgrade2.function)
-
-    def test2(self, type, operation):
-        score = 5
-        score = operation(5)
+        self.upgrades.append(GameControllerBase.Upgrade(id=1, tier=0, name="RewardMultiplier", description="Answer reward bonus", 
+                                                        isBought=False, cost=1.0, type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, 
+                                                        function="MULTIPLY 1.2; ADD 1", isUnlocked=True, 
+                                                        onBoughtSuccess=None,
+                                                        onBoughtFailure=None))
 
 
     def appendQuestionAndAnswer(self, question, answer):
@@ -61,11 +53,8 @@ class QuizGameController(GameControllerBase):
 
     def goodAnswer(self):
         baseReward = 5
-        for upgrade in self.upgrades:
-            if upgrade.type == GameControllerBase.UpgradeType.ACTIVE_UPGRADE and upgrade.isBought == True:
-            # if upgrade.type == GameControllerBase.UpgradeType.ACTIVE_UPGRADE:
-                baseReward = upgrade.function(baseReward)
-
+        activeUpgrades = [upgrade for upgrade in self.upgrades if upgrade.type == GameControllerBase.UpgradeType.ACTIVE_UPGRADE]
+        baseReward = GameControllerBase.Upgrade.calculateMultiplier(baseReward, activeUpgrades)
         self.gameMainframe.activeAction(baseReward)
 
     def generateNewMultiplierReward(self):
@@ -77,7 +66,7 @@ class QuizGameController(GameControllerBase):
                                                         isBought=False, 
                                                         cost=lastUpgrade.cost * 2.2, 
                                                         type=GameControllerBase.UpgradeType.ACTIVE_UPGRADE, 
-                                                        function=lambda score: score * 2, 
+                                                        function="MULTIPLY 2", 
                                                         isUnlocked=True, 
                                                         onBoughtSuccess=self.generateNewMultiplierReward,
                                                         onBoughtFailure=None))
