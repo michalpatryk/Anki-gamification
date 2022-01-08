@@ -112,6 +112,10 @@ class GameControllerBase():
     def activateUpgrade(self):
         pass
 
+    def attachIncreaseMaxSizeHandle(self, increaseMaxSizeHandle):
+        self.increaseMaxSizeHandle = increaseMaxSizeHandle
+
+
     def increaseSizeDelayedAction(self, width, height, operation, upgrade):
         self.increaseMaxSizeHandle(width=width, height=height, operator=operation)
         sizeUpgrade = GameControllerBase.Upgrade(id=upgrade.id, tier=upgrade.tier + 1, name="{}_{}".format(upgrade.id, upgrade.tier), 
