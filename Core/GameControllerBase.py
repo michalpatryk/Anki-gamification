@@ -7,6 +7,11 @@ class GameControllerBase():
         GLOBAL_UPGRADE = "GLOBAL_UPGRADE",
         WINDOW_UPGRADE = "WINDOW_UPGRADE"
 
+    class SizeUpgradeType(str, Enum):
+        WIDTH_UPGRADE = auto(),
+        HEIGHT_UPGRADE = auto(),
+        WIDTH_AND_HEIGHT_UPGRADE = auto(),
+
     class Upgrade():
 
         def __init__(self, id: int, tier: int, name: str, description: str, cost: int, type: Enum, function: str, isUnlocked: bool, isBought: bool = False, onBoughtSuccess: typing.Callable = None, onBoughtFailure: typing.Callable = None) -> None:
@@ -67,6 +72,8 @@ class GameControllerBase():
         self.controllerName = "DefaultController"
         self.enabled = True
         self.upgrades = list()
+        self.delayedUpgrades = list()
+        self.increaseMaxSizeHandle = None
 
     def update(self) -> None:
         pass
@@ -104,6 +111,23 @@ class GameControllerBase():
     # activates upgrade bought in shop
     def activateUpgrade(self):
         pass
+
+    def increaseSizeDelayedAction(self, width, height, operation, upgrade):
+        self.increaseMaxSizeHandle(width=width, height=height, operator=operation)
+        sizeUpgrade = GameControllerBase.Upgrade(id=upgrade.id, tier=upgrade.tier + 1, name="{}_{}".format(upgrade.id, upgrade.tier), 
+                                                description=upgrade.description, 
+                                                isBought=False, cost=upgrade.cost * 3, type=GameControllerBase.UpgradeType.GLOBAL_UPGRADE, 
+                                                function="PASS", isUnlocked=True, 
+                                                onBoughtSuccess=lambda: self.increaseSizeUpgrade(width * 2, height * 2, operator.add, sizeUpgrade),
+                                                onBoughtFailure=None)
+        self.upgrades.append(sizeUpgrade)
+
+    def increaseSizeUpgrade(self, width, height, operation, upgrade):
+        self.delayedUpgrades.append(lambda: self.increaseSizeDelayedAction(width=width, height=height, operation=operation, upgrade=upgrade))
+        if self.increaseMaxSizeHandle is not None:
+            self.delayedUpgrades.pop()()
+
+
 
 class DefaultModel():
     class Upgrade(typing.NamedTuple):

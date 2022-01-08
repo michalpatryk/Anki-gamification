@@ -49,3 +49,4 @@ class NotepadWindow(DefaultGameMdiSubWindow):
         self.notepadWidget = NotepadWidget(self, flags)
         self.setWidget(self.notepadWidget)
         self.controller.attachUnlockHandle(self.unlock)
+        self.controller.attachIncreaseMaxSizeHandle(self.increaseMaxSize)

@@ -1,5 +1,6 @@
 
 from PyQt6 import QtCore, QtWidgets, QtGui
+import operator
 import typing
 
 class DefaultGameMdiSubWindow(QtWidgets.QMdiSubWindow):
@@ -27,3 +28,9 @@ class DefaultGameMdiSubWindow(QtWidgets.QMdiSubWindow):
         if self.mdiArea() is not None:
             action = self.mdiArea().parent().getMenuAction(self.menuName)
             action.setEnabled(True)
+
+    def increaseMaxSize(self, width, height, operator: operator):
+        size = self.maximumSize()
+        size.setWidth(operator(size.width(), width))
+        size.setHeight(operator(size.height(), height))
+        self.setMaximumSize(size)
