@@ -89,10 +89,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.windowLocationMenu.addAction(self.cascadeWindowsAction)
 
     def getMenuAction(self, menuName):
-        pass
-
-    def replaceMenuAction(self, menuName, action):
-        pass
+        return self.menuActionsDictionary[menuName]   
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.gameMainframe.save()

@@ -21,7 +21,9 @@ class DefaultGameMdiSubWindow(QtWidgets.QMdiSubWindow):
 
     def closeEvent(self, closeEvent: QtGui.QCloseEvent) -> None:
         self.mdiArea().parent().mdiSubwindowOnClose(self)
-        # return super().closeEvent(closeEvent)
 
     def unlock(self):
         self.isUnlocked = True
+        if self.mdiArea() is not None:
+            action = self.mdiArea().parent().getMenuAction(self.menuName)
+            action.setEnabled(True)

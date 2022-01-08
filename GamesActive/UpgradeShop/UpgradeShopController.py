@@ -26,5 +26,3 @@ class UpgradeShopController(GameControllerBase):
             return True
         else:
             return False
-
-# add some function here to make note to the mainframe controller that a new element is unlocked

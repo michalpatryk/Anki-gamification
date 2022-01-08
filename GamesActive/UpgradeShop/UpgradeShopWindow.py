@@ -59,9 +59,6 @@ class UpgradeShopWidget(QtWidgets.QWidget):
         self.buyAllButton.clicked.connect(self.buyAllUpgrades)
         self.showBoughtCheckbox.clicked.connect(self.loadUpgrades)
 
-    def test(self):
-        print(123)
-
     def loadUpgrades(self):
         self.upgradesTree.clear()
         self.gamesUpgrades = self.getAvaliableUpgradesHandle()
