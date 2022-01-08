@@ -1,6 +1,7 @@
 from collections import namedtuple
 from enum import Enum, auto
 import typing
+import operator
 class GameControllerBase():
     class UpgradeType(str, Enum):
         ACTIVE_UPGRADE = "ACTIVE_UPGRADE",
