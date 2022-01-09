@@ -7,7 +7,7 @@ from GamesActive.QuizGame.AnkiQuizGameController import QuizGameController
 class GameMainframe():
     def __init__(self) -> None:
         self.ankiFile = None
-        self.score = 0
+        self.score = 0.0
         self.multipliers = list()
         self.games = dict()
         self.lastAutosave = time.time()
@@ -99,4 +99,5 @@ class GameMainframe():
         else: 
             return False
 
-            #search game with given name for a upgrade with a given id
+    def reloadShop(self):
+        self.games["UpgradeShopController"].reloadShop()

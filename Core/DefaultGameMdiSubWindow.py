@@ -15,7 +15,7 @@ class DefaultGameMdiSubWindow(QtWidgets.QMdiSubWindow):
         self.shouldStartVisible = False
         self.gameName = "DefaultGameName"
         self.controller = controller
-
+        self.controller.attachIncreaseMaxSizeHandle(self.increaseMaxSize)
 
     def onClick(self):
         self.hide()

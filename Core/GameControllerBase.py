@@ -119,17 +119,46 @@ class GameControllerBase():
 
     def increaseSizeDelayedAction(self, width, height, operation, upgrade):
         self.increaseMaxSizeHandle(width=width, height=height, operator=operation)
-        sizeUpgrade = GameControllerBase.Upgrade(id=upgrade.id, tier=upgrade.tier + 1, name="{}_{}".format(upgrade.id, upgrade.tier), 
+
+    def increaseSizeUpgrade(self, width, height, operation, upgrade):
+        sizeUpgrade = GameControllerBase.Upgrade(id=upgrade.id, tier=upgrade.tier + 1, name="{}_{}".format(upgrade.id, upgrade.tier + 1), 
                                                 description=upgrade.description, 
                                                 isBought=False, cost=upgrade.cost * 3, type=GameControllerBase.UpgradeType.GLOBAL_UPGRADE, 
                                                 function="PASS", isUnlocked=True, 
                                                 onBoughtSuccess=lambda: self.increaseSizeUpgrade(width * 2, height * 2, operator.add, sizeUpgrade),
                                                 onBoughtFailure=None)
         self.upgrades.append(sizeUpgrade)
-
-    def increaseSizeUpgrade(self, width, height, operation, upgrade):
         self.delayedUpgrades.append(lambda: self.increaseSizeDelayedAction(width=width, height=height, operation=operation, upgrade=upgrade))
         if self.increaseMaxSizeHandle is not None:
+            self.delayedUpgrades.pop()()
+
+    def addSizeUpgrades(self):
+        sizeUpgrade_1 = GameControllerBase.Upgrade(id=1001, tier=0, name="1001_0", description="Increase max width", 
+                                                isBought=False, cost=100.0, type=GameControllerBase.UpgradeType.GLOBAL_UPGRADE, 
+                                                function="PASS", isUnlocked=False, 
+                                                onBoughtSuccess=lambda: self.increaseSizeUpgrade(50, 0, operator.add, sizeUpgrade_1),
+                                                onBoughtFailure=None)
+        self.upgrades.append(sizeUpgrade_1)
+        sizeUpgrade_2 = GameControllerBase.Upgrade(id=1002, tier=0, name="1002_0", description="Increase max height", 
+                                                isBought=False, cost=100.0, type=GameControllerBase.UpgradeType.GLOBAL_UPGRADE, 
+                                                function="PASS", isUnlocked=False, 
+                                                onBoughtSuccess=lambda: self.increaseSizeUpgrade(0, 50, operator.add, sizeUpgrade_2),
+                                                onBoughtFailure=None)
+        self.upgrades.append(sizeUpgrade_2)
+        sizeUpgrade_3 = GameControllerBase.Upgrade(id=1003, tier=0, name="1003_0", description="Increase width and height", 
+                                                isBought=False, cost=500.0, type=GameControllerBase.UpgradeType.GLOBAL_UPGRADE, 
+                                                function="PASS", isUnlocked=False, 
+                                                onBoughtSuccess=lambda: self.increaseSizeUpgrade(50, 50, operator.add, sizeUpgrade_3),
+                                                onBoughtFailure=None)
+        self.upgrades.append(sizeUpgrade_3)
+    
+    def unlockTierZeroSizeUpgrades(self):
+        for upgrade in self.upgrades:
+            if upgrade.id in (1001, 1002, 1003):
+                upgrade.isUnlocked = True
+    
+    def popAllDelayedUpgrades(self):
+        while(self.delayedUpgrades):
             self.delayedUpgrades.pop()()
 
 

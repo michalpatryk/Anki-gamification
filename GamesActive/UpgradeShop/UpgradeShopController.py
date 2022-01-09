@@ -5,6 +5,9 @@ class UpgradeShopController(GameControllerBase):
         super().__init__(gameMainframe)
         self.gameName = "UpgradeShop"
         self.controllerName = "UpgradeShopController"
+        self.reloadShopHandle = None
+        self.addSizeUpgrades()
+        self.unlockTierZeroSizeUpgrades()
 
     def getAvaliableUpgrades(self) -> list:
         upgrades = self.gameMainframe.getAllUpgrades()
@@ -26,3 +29,9 @@ class UpgradeShopController(GameControllerBase):
             return True
         else:
             return False
+
+    def attachReloadShopHandle(self, reloadShopHandle):
+        self.reloadShopHandle = reloadShopHandle
+
+    def reloadShop(self):
+        self.reloadShopHandle()

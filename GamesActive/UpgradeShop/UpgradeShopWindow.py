@@ -11,14 +11,6 @@ class UpgradesContainer(QtWidgets.QTreeWidget):
         super().__init__(parent=parent)
         # self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
-    # def itemEntered(self, item: QtWidgets.QTreeWidgetItem, column: int) -> None:
-    #     print(123)
-    #     return super().itemEntered(item, column)
-
-    # def mouseMoveEvent(self, event: QtGui.QMouseEvent) -> None:
-    #     print(123)
-    #     return super().mouseMoveEvent(event)
-
 class UpgradeShopWidget(QtWidgets.QWidget):
     def __init__(self, parent: typing.Optional['QtWidgets.QWidget'], getAvaliableUpgradesHandle, canBuyUpgradeHandle, buyUpgradeHandle) -> None:
         super().__init__(parent=parent)
@@ -105,3 +97,5 @@ class UpgradeShopWindow(DefaultGameMdiSubWindow):
                                                   self.controller.canBuyUpgrade, 
                                                   self.controller.buyUpgrade)
         self.setWidget(self.shopWidget)
+        self.controller.popAllDelayedUpgrades()
+        self.controller.attachReloadShopHandle(self.shopWidget.loadUpgrades)

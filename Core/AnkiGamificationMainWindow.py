@@ -24,7 +24,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
     def __init__(self, gameMainframe: GameMainframe) -> None:
         super(AnkiGamificationMainWindow, self).__init__()
         self.setGeometry(50, 50, 500, 300)
-        self.setMaximumSize(500, 500)
+        # self.setMaximumSize(500, 500)
         self.setWindowTitle("AnkiGamification")
         self.setObjectName("AnkiGamificationMainWindow")
 
@@ -57,6 +57,7 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
         self.menuBar.addMenu(self.gameMenu)
         self.menuBar.addMenu(self.windowLocationMenu)
         self.setMenuBar(self.menuBar)
+        self.gameMainframe.reloadShop()
 
 
     def initGame(self, gameType: DefaultGameMdiSubWindow, controller):
@@ -93,5 +94,5 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.gameMainframe.save()
-        print("exiting")
+        print("Have a good day!")
         return super().closeEvent(a0)
