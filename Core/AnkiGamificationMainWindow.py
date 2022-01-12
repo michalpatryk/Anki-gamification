@@ -53,9 +53,11 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
                 self.initGame(game.window, self.gameMainframe.getGameByControllerType(game.controller))
 
         self.createWindowControlMenu()
+        self.createAboutMenu()
 
         self.menuBar.addMenu(self.gameMenu)
         self.menuBar.addMenu(self.windowLocationMenu)
+        self.menuBar.addMenu(self.aboutMenu)
         self.setMenuBar(self.menuBar)
         self.gameMainframe.reloadShop()
 
@@ -85,9 +87,24 @@ class AnkiGamificationMainWindow(QtWidgets.QMainWindow):
 
     def createWindowControlMenu(self):
         self.windowLocationMenu = QtWidgets.QMenu("&Window control", self)
-        self.cascadeWindowsAction =  QtGui.QAction("Cascade windows", self.windowLocationMenu)
+        self.cascadeWindowsAction = QtGui.QAction("Cascade windows", self.windowLocationMenu)
         self.cascadeWindowsAction.triggered.connect(self.mdiArea.cascadeSubWindows)
         self.windowLocationMenu.addAction(self.cascadeWindowsAction)
+
+    def createAboutMenu(self):
+        self.aboutMenu = QtWidgets.QMenu("&About", self)
+        self.aboutAction = QtGui.QAction("About this software", self.aboutMenu)
+
+        self.aboutPopup = QtWidgets.QMessageBox()
+        self.aboutPopup.setWindowTitle("About this software")
+        self.aboutPopup.setText("This software was created in 2021 by Michał Urbańczyk. \n" +
+                                "Its purpose is to show how you can use gamification \n" +
+                                "as a help for language/vocabulary learning.\n" +
+                                "Application is a part of thesis titled: \n" +
+                                '"Application for language learning with gamification".\n')
+
+        self.aboutAction.triggered.connect(self.aboutPopup.exec)
+        self.aboutMenu.addAction(self.aboutAction)
 
     def getMenuAction(self, menuName):
         return self.menuActionsDictionary[menuName]   

@@ -91,8 +91,6 @@ class LoadCollectionPage(ImportWizardPage):
         self.lineEdit.setText(self.fname)
         self.registerField("collectionFile", self.lineEdit)
 
-        self.lineEdit.setText(
-            "C:/Own/Programming/Python/Anki-gamification/Anki_data/collection.anki2")
         self.checkBox.setChecked(True)
 
     def onSelectFile(self):
