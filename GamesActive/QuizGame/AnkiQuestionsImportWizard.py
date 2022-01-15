@@ -22,11 +22,6 @@ class ImportWizard(QtWidgets.QWizard):
 
     def onFinish(self):
         self.finishHandle(self.ankiNotesLoader.getAnswersAndQuestions())
-        # finisher = self.parent()
-        # while finisher.objectName != "QuizGameWindow":
-        #     finisher = finisher.parent()
-        # finisher.loadWizardResults(self.ankiNotesLoader.getAnswersAndQuestions())
-
 
 class ImportWizardPage(QtWidgets.QWizardPage):
     def wizard(self) -> ImportWizard:
@@ -147,7 +142,6 @@ class LoadDeckPage(ImportWizardPage):
                     child = QtWidgets.QTreeWidgetItem([subdeck[0]])
                     parent.addChild(child)
                     parent.setExpanded(True)
-                    # parent.setFlags(parent.flags() & ~QtCore.Qt.ItemFlag.ItemIsCl)
                     recursiveAdd(child, subdeck[1])
 
         self.wizard().ankiNotesLoader = AnkiNotesLoader(self.field("collectionFile"))
@@ -285,8 +279,6 @@ class SelectFieldsPage(ImportWizardPage):
         self.updateSelectedFields(item)
 
     def updateSelectedFields(self, item: QtWidgets.QTreeWidgetItem):
-        # item.treeWidget().findItems(
-        #     "", QtCore.Qt.MatchFlag.MatchContains | QtCore.Qt.MatchFlag.MatchRecursive)
 
         selectedFields = list()
         for deck in item.treeWidget().findItems("", QtCore.Qt.MatchFlag.MatchContains | QtCore.Qt.MatchFlag.MatchRecursive):

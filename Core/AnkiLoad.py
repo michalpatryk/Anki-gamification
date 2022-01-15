@@ -3,12 +3,9 @@ from os import listdir
 from os.path import dirname
 
 from collections import defaultdict
-import pprint as pp
-from time import perf_counter
 
 class AnkiNotesLoader():
     def __init__(self, file) -> None:
-        # self.testing(file)
         self.file = file
         db.database.init(file)
         self.decks = list()
@@ -33,17 +30,12 @@ class AnkiNotesLoader():
 
     def setInDict(self, dic: dict, keys, value):
         for key in keys[:-1]:
-            # if type(dic[key]) == dict:
             if dic[key] == 0:
                 dic[key] = dict()
             dic = dic[key]
-            # dic = dic.setdefault(key, {})
-            # else:
-            #     dic[key] = dict({key: 0})
         dic[keys[-1]] = value
             
             
-    # Rethink this
     def getDeckTree(self) -> dict:
         separator = "\x1f"
         decks = list([deck.name for deck in self.decks])
@@ -62,13 +54,7 @@ class AnkiNotesLoader():
             
             cards = db.Cards.select().where(db.Cards.did == (db.Decks.select().where(db.Decks.name % test)[0]))
                 
-            
-            # note_ids = set([card.nid for card in cards])
-            # # notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
-            
-            # # self.setInDict(deckTree, deck, len(notes))
-            # notesCount = db.Notes.select().where(db.Notes.id.in_(note_ids)).count()
-            
+
             self.setInDict(deckTree, deck, cards.count())
         return deckTree
 
@@ -116,7 +102,7 @@ class AnkiNotesLoader():
             else:
                 self.selectedAnswerFields[noteType.id] = [field]
 
-    # should be subjected to refactoring in order to merge these two for loops.
+
     def getAnswersAndQuestions(self) -> tuple[list, list]:
         for noteType in self.selectedQuestionFields.items():
             notes = db.Notes.select(db.Notes.flds).where(db.Notes.mid == noteType[0])
@@ -127,7 +113,7 @@ class AnkiNotesLoader():
                         question.append(note.flds[field.ord])
                     except IndexError:
                         print("Detected empty field while importing questions! Adding first field of a card")
-                        answer.append(note.flds[0])
+                        question.append(note.flds[0])
                 self.questions.append('\n'.join([str(elem) for elem in question]))
 
         for noteType in self.selectedAnswerFields.items():
@@ -143,38 +129,3 @@ class AnkiNotesLoader():
                 self.answers.append('\n'.join([str(elem) for elem in answer]))
 
         return self.questions, self.answers
-
-    def testing(self, file):
-        db.database.init(file)
-
-        # we dont need NoteTypes, it only contains note name and some useless formatting
-        # first, we need decks - to show user deck names so he can select a good one - this gives us its id to get all the cards
-        # second - we fetch all the cards from the deck, as they contain sheduling
-        # third - we fetch all the notes and check if we have different notes 
-        # fourth - we fetch all the required noteTypes(by using the ids we have gotten from the notes).    --- we dont even need to use noteTypes
-        # - just fetch field names
-        # We force the user to accept/ignore said note type (and select fields if he accepts). This gives us noteType ids to use in fields table
-        # fifth - we fetch all the fields for a given note type and 
-
-        # first:
-        decks = list(db.Decks.select())
-        # for now - only one deck supported
-        deck = decks[3]
-        # deck_names = ([deck_name.name for deck_name in decks if deck_name.name.find('\x1f') == -1])
-
-        # second:
-        cards = list(db.Cards.select().where(db.Cards.did == deck.id))
-
-
-        # third:
-        note_ids = set([card.nid for card in cards])
-        notes = list(db.Notes.select().where(db.Notes.id.in_(note_ids)))
-
-        # fourth - skipping noteTypes
-        note_type_ids = set([note.mid for note in notes])
-        fields = list(db.Fields.select().where(db.Fields.ntid.in_(note_type_ids)))
-        print("loaded")
-    
-
-# dir = dirname(__file__) + '/../Anki_data' + '/collection.anki2'
-# AnkiNotesLoader(dir)

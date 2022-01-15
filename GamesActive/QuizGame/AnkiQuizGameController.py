@@ -1,7 +1,6 @@
 import random
 import operator
 from Core.GameControllerBase import GameControllerBase, DefaultModel
-# from .AnkiQuizWindow import QuizGameWindow
 
 
 # contains a set of functions that are executed by said game widget
@@ -75,7 +74,7 @@ class QuizGameController(GameControllerBase):
 class QuizGameModel(DefaultModel):
     def __init__(self) -> None:
         super().__init__()
-        # might want to change that in the future - it is too dependent on the ordering
+        # might want to change that in the future
         self.questions = list()
         self.answers = list()
 

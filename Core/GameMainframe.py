@@ -17,8 +17,7 @@ class GameMainframe():
             quizGameController = QuizGameController(self)
             self.games[quizGameController.controllerName] = quizGameController
 
-    def update(self):  # update all the games here
-        # self.score += 1
+    def update(self):
         for game in self.games.values():
             game.update()
         if time.time() - self.lastAutosave > 60 * 10:
@@ -28,7 +27,6 @@ class GameMainframe():
 
     def activeAction(self, weight):
         self.score += weight
-        print(self.score)
 
     def load(self):
         try:
@@ -75,7 +73,6 @@ class GameMainframe():
     def decreaseScore(self, value):
         self.score -= value
 
-    # Multiplier as a pair of value and operator? Or a lambda?
     def addGlobalMultiplier(self, multiplier):
         pass
 

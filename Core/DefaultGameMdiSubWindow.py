@@ -1,7 +1,6 @@
 
 from PyQt6 import QtCore, QtWidgets, QtGui
 import operator
-import typing
 
 class DefaultGameMdiSubWindow(QtWidgets.QMdiSubWindow):
 

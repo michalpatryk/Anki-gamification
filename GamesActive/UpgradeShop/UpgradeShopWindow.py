@@ -9,7 +9,6 @@ class UpgradeItem(QtWidgets.QStyledItemDelegate):
 class UpgradesContainer(QtWidgets.QTreeWidget):
     def __init__(self, parent: typing.Optional[QtWidgets.QWidget] = ...) -> None:
         super().__init__(parent=parent)
-        # self.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
 
 class UpgradeShopWidget(QtWidgets.QWidget):
     def __init__(self, parent: typing.Optional['QtWidgets.QWidget'], getAvaliableUpgradesHandle, canBuyUpgradeHandle, buyUpgradeHandle) -> None:

@@ -28,6 +28,6 @@ class AnkiGamificationApp(QtWidgets.QApplication):
     def saveConfig(self):
         try:
             with open('config.json', 'r') as f:
-                json.dumps(self.config, f)  # untested
+                json.dumps(self.config, f)  
         except EnvironmentError:
             print("no config")
